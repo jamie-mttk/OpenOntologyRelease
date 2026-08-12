@@ -1,11 +1,11 @@
 ---
 name: OpenOntology 技能包
-description: 在企业本体域内查询业务数据、按剧本推进任务、调用逻辑组件与算法推理。适用于用户要查数、执行业务剧本、跑封装逻辑或模型推理时。
+description: 在企业本体域内查询业务数据、按剧本推进任务、调用逻辑组件。适用于用户要查数、执行业务剧本或跑封装逻辑时。算法推理(alg_invoke)不对外部 Skill 开放。
 ---
 
 # OpenOntology 技能包
 
-Base URL：`http://localhost:8384`。  
+Base URL：`http://localhost:8825`。  
 唯一入口：`POST /api/ext/tool`，请求 `Content-Type: application/json;charset=UTF-8`。  
 响应：`text/plain;charset=UTF-8`（工具输出原文）。  
 推荐用 `curl`（或等价 HTTP 调用工具）直接调用本入口，单次请求不必编写脚本。
@@ -27,7 +27,7 @@ Base URL：`http://localhost:8384`。
 |------|------|-------------|------|
 | `bootstrap` | 一次返回可调用工具清单与全部域列表 | `{"type":"object","properties":{}}` | JSON：`tools`(code/label/description) + `domains`(域数组) |
 | `tool_schema` | 按工具 code 读取完整说明与 inputSchema | `{"type":"object","required":["tool"],"properties":{"tool":{"type":"string","description":"工具 code"}}}` | JSON：`code` / `label` / `description` / `inputSchema` |
-| `domain_detail` | 按域 id 返回该域可调用资源清单 | `{"type":"object","required":["domain"],"properties":{"domain":{"type":"string","description":"域 id"}}}` | Markdown：该域可调用的实体、链接类型、算法、逻辑组件、剧本等清单 |
+| `domain_detail` | 按域 id 返回该域可调用资源清单 | `{"type":"object","required":["domain"],"properties":{"domain":{"type":"string","description":"域 id"}}}` | Markdown：该域可调用的实体、链接类型、逻辑组件、剧本等清单 |
 
 其它业务工具须先 `tool_schema`，再按返回的 `inputSchema` 调用。
 
@@ -48,8 +48,8 @@ Base URL：`http://localhost:8384`。
 ## 硬性规则
 
 1. **基于事实**：事实性内容（数据、指标、id、结论、参数等）须来自工具结果；无法验证时须明说，**禁止编造**。
-2. **`alg_invoke`**：必须提供非空 `invokeInput`；不得省略以触发界面填表。
+2. **禁止 `alg_invoke`**：外部入口已屏蔽算法推理；域清单若出现算法相关项，不得尝试调用 `alg_invoke`。
 3. **查数须先 guideline**：调用 `ontology_query` 前必须先获取查数 guideline，并严格按该 guideline 构造与执行查询。
 4. **`ontology_query`**：若返回无会话/禁止查数类失败说明，**禁止重试**同一查询；向用户说明原因并停止或改用其它路径（若有）。
 5. **编码**：请求与响应正文均按 **UTF-8** 处理（含 `Content-Type` 的 charset）；禁止改用其它字符集解读工具输出。
-6. **`domain_detail` 与 `@uc/`**：`domain_detail` 工作编排「执行意图」可能含 `@uc/`；本 Skill 外部入口无界面组件/会话文件/技能工具，**忽略** `@uc/` 作为执行指令，勿尝试 `ui_show_component` 或等价调用。仅 `@pb/`、`@lc/`、`@alg/` 视为要求执行。
+6. **`domain_detail` 与执行意图**：`domain_detail` 工作编排「执行意图」可能含 `@uc/`、`@alg/`；本 Skill 外部入口无界面组件/会话文件/技能工具，且 **`alg_invoke` 不可用**，**忽略** `@uc/`、`@alg/` 作为执行指令。仅 `@pb/`、`@lc/` 视为要求执行（逻辑组件用 `logic_component_invoke`）。
