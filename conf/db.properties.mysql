@@ -1,0 +1,26 @@
+#
+# DB
+#
+
+# MySQL JDBC URL
+jdbcUrl=jdbc:mysql://localhost:3306/ontology?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai
+# 数据库用户名
+username=root
+# 数据库密码
+password=123456
+# JDBC 驱动类
+driverClassName=com.mysql.cj.jdbc.Driver
+# 连接池名称
+poolName=openont-main
+# 最大连接数
+maximumPoolSize=10
+# 最小空闲连接数
+minimumIdle=2
+# 获取连接超时（毫秒）
+connectionTimeout=30000
+# 空闲连接超时（毫秒）
+idleTimeout=600000
+# 连接最大存活时间（毫秒）
+maxLifetime=1800000
+# 是否自动提交
+autoCommit=false

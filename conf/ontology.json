@@ -1,0 +1,181 @@
+{
+  "groups": [
+    {
+      "id": "http",
+      "title": "WEB服务器",
+      "items": [
+        {
+          "key": "http.port",
+          "label": "端口",
+          "description": "内置管理端/API 的监听端口；修改后需重启。",
+          "type": "int",
+          "value": 8825
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "title": "AI",
+      "items": [
+        {
+          "key": "ai.maxTurns",
+          "label": "最大轮次",
+          "description": "单轮对话最大 tool/assistant 轮次。",
+          "type": "int",
+          "value": 200
+        },
+        {
+          "key": "ai.llmConnectTimeoutSeconds",
+          "label": "大模型连接超时(秒)",
+          "description": "连接大模型 API 超时（秒）。",
+          "type": "int",
+          "value": 30
+        },
+        {
+          "key": "ai.llmReadTimeoutSeconds",
+          "label": "大模型响应超时(秒)",
+          "description": "等待大模型响应超时（秒）。",
+          "type": "int",
+          "value": 600
+        },
+        {
+          "key": "ai.chatSseTimeoutSeconds",
+          "label": "对话流最长存活(秒)",
+          "description": "AI/训练对话流式连接最长存活时间（秒；缺省 24 小时）。",
+          "type": "int",
+          "value": 86400
+        },
+        {
+          "key": "ai.llmMaxAttempts",
+          "label": "大模型最大尝试次数",
+          "description": "大模型调用最大尝试次数（含首次）。",
+          "type": "int",
+          "value": 4
+        },
+        {
+          "key": "ai.llmSseIdleTimeoutSeconds",
+          "label": "对话流空闲超时(秒)",
+          "description": "对话流两次数据之间的最大空闲秒数。",
+          "type": "int",
+          "value": 90
+        },
+        {
+          "key": "ai.contextWindowTokens",
+          "label": "默认上下文窗口(token)",
+          "description": "默认上下文窗口 token 数（模型 chat_options 未配时兜底）。",
+          "type": "int",
+          "value": 200000
+        },
+		{
+          "key": "ai.conversationTitleAiEnabled",
+          "label": "自动AI生成会话标题",
+          "description": "是否用大模型异步生成会话标题。",
+          "type": "boolean",
+          "value": true
+        },
+        {
+          "key": "ai.compactEnabled",
+          "label": "启用上下文压缩",
+          "description": "是否启用上下文压缩。",
+          "type": "boolean",
+          "value": true
+        },
+        {
+          "key": "ai.compactThresholdRatio",
+          "label": "压缩触发阈值(0~1)",
+          "description": "上下文压缩触发阈值（占 context window 比例，0~1）。",
+          "type": "double",
+          "value": 0.85
+        },
+
+        {
+          "key": "ai.chatLogEnabled",
+          "label": "落盘 LLM 调用日志",
+          "description": "是否落盘每次 LLM call 的请求与响应。",
+          "type": "boolean",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "ontologyQuery",
+      "title": "本体查询",
+      "items": [
+        {
+          "key": "openont.ontologyQuery.privacyFileOnly",
+          "label": "隐私强制落盘",
+          "description": "true 时 ontology_query 行数据不进入模型回执，仅写会话文件；默认 false。",
+          "type": "boolean",
+          "value": false
+        },
+        {
+          "key": "openont.ontologyQuery.inlineMaxRows",
+          "label": "查询最大行数",
+          "description": "回执可含 data 的最大行数（含）；超过则落盘。",
+          "type": "int",
+          "value": 200
+        },
+        {
+          "key": "openont.ontologyQuery.rejectMaxRows",
+          "label": "查询拒绝行数",
+          "description": "允许查询的最大行数（含）；超过则拒绝（非异常）。",
+          "type": "int",
+          "value": 10000
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "技能",
+      "items": [
+        {
+          "key": "skills.execTimeoutSeconds",
+          "label": "skill_exec 超时(秒)",
+          "description": "skill_exec 单次命令超时（秒）。",
+          "type": "int",
+          "value": 600
+        }
+      ]
+    },
+    {
+      "id": "bash",
+      "title": "Bash",
+      "items": [
+        {
+          "key": "bash.path",
+          "label": "Bash 可执行路径",
+          "description": "skill_exec / CLI 等共用的 bash 路径（建议正向斜杠）。",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "algorithm",
+      "title": "算法",
+      "items": [
+        {
+          "key": "algorithm.pythonExecutable",
+          "label": "Python 可执行文件",
+          "description": "训练/推理使用的 Python 可执行文件。",
+          "type": "string",
+          "value": "python"
+        },
+        {
+          "key": "algorithm.useVenv",
+          "label": "独立 venv",
+          "description": "是否为每个算法包创建独立 venv。",
+          "type": "boolean",
+          "value": true
+        },
+        {
+          "key": "algorithm.autoInstallRequirements",
+          "label": "自动安装依赖",
+          "description": "训练/推理时自动 pip install requirements.txt。",
+          "type": "boolean",
+          "value": true
+        }
+      ]
+    }
+  ]
+}
