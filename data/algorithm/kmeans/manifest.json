@@ -1,0 +1,291 @@
+{
+  "name": "K-Means 聚类",
+  "version": "1.0.0",
+  "description": "按数值特征将样本分成若干组，发现相似群体（无监督，不预测某个目标列）。\n适合对象分群、画像分层，以及对数据自然分组结构做探索。",
+  "runtime": {
+    "interpreter": "python"
+  },
+  "spec": {
+    "trainingConfig": {
+      "type": "object",
+      "required": [
+        "features",
+        "nClusters"
+      ],
+      "properties": {
+        "features": {
+          "type": "array",
+          "title": "聚类特征",
+          "description": "参与距离计算的特征列，建议量纲相近或开启标准化",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 1,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "nClusters": {
+          "type": "integer",
+          "title": "簇数量",
+          "description": "期望划分的聚类个数 k",
+          "minimum": 2,
+          "maximum": 50,
+          "default": 4,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "超参数",
+            "_sequence": 2,
+            "min": 2,
+            "max": 50
+          }
+        },
+        "standardize": {
+          "type": "boolean",
+          "title": "标准化特征",
+          "description": "聚类前是否对各特征做零均值单位方差缩放",
+          "default": true,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "超参数",
+            "_sequence": 3
+          }
+        },
+        "scatterSampleSize": {
+          "type": "integer",
+          "title": "散点采样数",
+          "description": "训练结果 PCA 二维散点图的最大采样点数；0 表示不生成散点",
+          "enum": [
+            0,
+            500,
+            1000,
+            2000
+          ],
+          "default": 0,
+          "x-ui": {
+            "~": "ElSelect",
+            "class": "w-full",
+            "_group": "超参数",
+            "_sequence": 4,
+            "options": [
+              {
+                "label": "不生成（0）",
+                "value": 0
+              },
+              {
+                "label": "500",
+                "value": 500
+              },
+              {
+                "label": "1000",
+                "value": 1000
+              },
+              {
+                "label": "2000",
+                "value": 2000
+              }
+            ]
+          }
+        }
+      }
+    },
+    "trainingResult": {
+      "type": "object",
+      "properties": {
+        "silhouette": {
+          "type": "number",
+          "title": "轮廓系数",
+          "description": "簇内紧密度与簇间分离度的综合指标，越接近 1 越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "轮廓系数",
+            "description": "簇内紧密度与簇间分离度的综合指标，越接近 1 越好",
+            "_formItem": false
+          }
+        },
+        "inertia": {
+          "type": "number",
+          "title": "簇内平方和",
+          "description": "样本到所属簇中心的距离平方和，越小簇内越紧凑",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "簇内平方和",
+            "description": "样本到所属簇中心的距离平方和，越小簇内越紧凑",
+            "_formItem": false
+          }
+        },
+        "centers": {
+          "type": "array",
+          "title": "分群结果",
+          "description": "簇画像、标准化中心与可视化；画像含原始量纲分位与可查询门槛",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "x-ui": {
+            "~": "AlgKMeanCenter",
+            "precision": 4,
+            "_sequence": 3,
+            "title": "分群结果",
+            "description": "簇画像、标准化中心与可视化；画像含原始量纲分位与可查询门槛",
+            "_formItem": false,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.features) ? $modelValue.features : [])"
+            },
+            "clusterSizes": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.clusterSizes) ? $modelValue.clusterSizes : [])"
+            },
+            "clusterProfiles": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.clusterProfiles) ? $modelValue.clusterProfiles : [])"
+            },
+            "scatterPoints": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.scatterPoints) ? $modelValue.scatterPoints : [])"
+            },
+            "pcaCenters": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.pcaCenters) ? $modelValue.pcaCenters : [])"
+            },
+            "scatterFile": {
+              "$bind": "expr",
+              "expr": "(typeof $modelValue?.scatterFile === 'string' ? $modelValue.scatterFile : null)"
+            },
+            "instanceId": {
+              "$bind": "expr",
+              "expr": "(typeof props.id === 'string' ? props.id : null)"
+            },
+            "clusterId": {
+              "$bind": "expr",
+              "expr": "(typeof $modelValue?.clusterId === 'number' && Number.isFinite($modelValue.clusterId) ? $modelValue.clusterId : null)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        }
+      }
+    },
+    "invokeConfig": {
+      "type": "object",
+      "required": [
+        "features"
+      ],
+      "properties": {
+        "features": {
+          "type": "object",
+          "title": "特征值",
+          "description": "待分群样本在各聚类特征上的取值",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "x-ui": {
+            "~": "AlgFeatureValues",
+            "_featurePresets": true,
+            "_sequence": 1,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray(props?.config?.features) ? props?.config?.features : []).map(String)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            },
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeResult": {
+      "type": "object",
+      "properties": {
+        "clusterId": {
+          "type": "integer",
+          "title": "簇编号",
+          "description": "样本被分配到的簇序号（从 0 起）",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "簇编号",
+            "description": "样本被分配到的簇序号（从 0 起）",
+            "_formItem": false
+          }
+        },
+        "distanceToCenter": {
+          "type": "number",
+          "title": "到簇中心距离",
+          "description": "样本到所属簇中心的欧氏距离",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "到簇中心距离",
+            "description": "样本到所属簇中心的欧氏距离",
+            "_formItem": false
+          }
+        },
+        "centers": {
+          "type": "array",
+          "title": "簇中心",
+          "description": "全部 k 个簇在特征空间中的质心坐标；若训练开启标准化，坐标位于标准化后的空间",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "x-ui": {
+            "~": "AlgKMeanCenter",
+            "precision": 4,
+            "_sequence": 3,
+            "title": "簇中心",
+            "description": "全部 k 个簇在特征空间中的质心坐标；若训练开启标准化，坐标位于标准化后的空间",
+            "_formItem": false,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.features) ? $modelValue.features : [])"
+            },
+            "clusterSizes": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.clusterSizes) ? $modelValue.clusterSizes : [])"
+            },
+            "scatterPoints": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.scatterPoints) ? $modelValue.scatterPoints : [])"
+            },
+            "pcaCenters": {
+              "$bind": "expr",
+              "expr": "(Array.isArray($modelValue?.pcaCenters) ? $modelValue.pcaCenters : [])"
+            },
+            "clusterId": {
+              "$bind": "expr",
+              "expr": "(typeof $modelValue?.clusterId === 'number' && Number.isFinite($modelValue.clusterId) ? $modelValue.clusterId : null)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        }
+      }
+    }
+  }
+}

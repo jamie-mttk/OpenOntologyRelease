@@ -1,0 +1,4 @@
+pandas>=2.0
+numpy>=1.24
+prophet>=1.1
+joblib>=1.3

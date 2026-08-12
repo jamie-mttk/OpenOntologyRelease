@@ -1,0 +1,29 @@
+{
+  "manifest": {
+    "code": "prophet",
+    "version": "1.0.0"
+  },
+  "algorithmConfig": {
+    "id": "cfg_test_prophet",
+    "payload": {
+      "bindings": {
+        "regressors": [
+          "promo_flag"
+        ]
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_prophet_001"
+  },
+  "artifact": {
+    "dir": "REPLACE_WITH_OUT_DIR"
+  },
+  "invokeInput": {
+    "periods": 8,
+    "futureHolidays": [],
+    "features": {
+      "promo_flag": 0
+    }
+  }
+}

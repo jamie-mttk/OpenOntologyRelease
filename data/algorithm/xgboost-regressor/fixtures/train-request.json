@@ -1,0 +1,27 @@
+{
+  "manifest": {
+    "code": "xgboost-regressor",
+    "version": "1.0.0"
+  },
+  "algorithmConfig": {
+    "id": "cfg_test_xgb",
+    "payload": {
+      "bindings": {
+        "target": "quantity",
+        "features": [
+          "dayOfWeek",
+          "unitPrice",
+          "promoFlag"
+        ]
+      },
+      "hyperparams": {
+        "nEstimators": 100,
+        "maxDepth": 4,
+        "learningRate": 0.1
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_xgb_001"
+  }
+}

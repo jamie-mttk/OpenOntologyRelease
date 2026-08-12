@@ -83,7 +83,7 @@
 
 发行包内技能目录：[`docs/skills/`](docs/skills/)（当前提供 [`openOntology`](docs/skills/openOntology/SKILL.md)）。
 
-使用前请先完成本系统启动与初始化；将技能目录安装到目标平台后，按该 `SKILL.md` 中的约定调用 HTTP 工具入口。安装步骤见 [安装手册 · Skills](docs/install.md#7-skills外部平台)。
+使用前请先完成本系统启动与初始化；将技能目录安装到目标平台后，按该 `SKILL.md` 中的约定调用 HTTP 工具入口。安装步骤见 [安装手册 · Skills](docs/install.md#8-skills外部平台)。
 
 ## License
 

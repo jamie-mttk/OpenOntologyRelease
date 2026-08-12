@@ -1,0 +1,48 @@
+{
+  "manifest": {
+    "code": "prophet",
+    "version": "1.0.0"
+  },
+  "algorithmConfig": {
+    "id": "cfg_test_prophet",
+    "name": "prophet test",
+    "domainId": "demo",
+    "payload": {
+      "data": {
+        "entity": "time_series",
+        "query": {}
+      },
+      "bindings": {
+        "ds": "ds",
+        "y": "y",
+        "regressors": [
+          "promo_flag"
+        ],
+        "holidays": [
+          {
+            "name": "元旦",
+            "column": "is_holiday",
+            "lowerWindow": 0,
+            "upperWindow": 0
+          }
+        ]
+      },
+      "hyperparams": {
+        "freq": "D",
+        "yearlySeasonality": true,
+        "weeklySeasonality": true,
+        "dailySeasonality": false,
+        "seasonalityMode": "additive",
+        "changepointPriorScale": 0.05,
+        "growth": "linear"
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_prophet_001"
+  },
+  "dataMeta": {
+    "rowCount": 120,
+    "columns": []
+  }
+}

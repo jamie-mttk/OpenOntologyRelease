@@ -1,0 +1,507 @@
+{
+  "name": "Prophet 时序预测",
+  "version": "1.0.0",
+  "description": "根据带时间的历史序列，外推未来多个时间点的数值，可刻画趋势与季节性。\n适合对指标做「未来一段时间」的预测，例如按日、周、月等粒度外推。",
+  "runtime": {
+    "interpreter": "python"
+  },
+  "spec": {
+    "trainingConfig": {
+      "type": "object",
+      "required": [
+        "ds",
+        "y",
+        "freq"
+      ],
+      "properties": {
+        "ds": {
+          "type": "string",
+          "title": "时间列",
+          "description": "唯一时间戳列；每个时间点应仅对应一行数据",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "dataTypes": [
+              "DATE",
+              "TIMESTAMP"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 1,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "y": {
+          "type": "string",
+          "title": "目标列",
+          "description": "待预测的数值序列（目标变量）",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 2,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "regressors": {
+          "type": "array",
+          "title": "额外回归量",
+          "description": "与 y 同时刻的外部回归变量列，可选；训练与推理均需提供未来值",
+          "items": {
+            "type": "string"
+          },
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 3,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "holidays": {
+          "type": "array",
+          "title": "节假日列",
+          "description": "布尔指示列(如 is_holiday), 标记历史样本是否为节假日; 可选",
+          "items": {
+            "type": "string"
+          },
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "dataTypes": [
+              "BOOLEAN",
+              "INTEGER"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 4,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "freq": {
+          "type": "string",
+          "title": "频率",
+          "description": "时间序列采样间隔：D 日 / W 周 / M 月 / Q 季 / Y 年 / H 小时",
+          "enum": [
+            "D",
+            "W",
+            "M",
+            "Q",
+            "Y",
+            "H"
+          ],
+          "default": "D",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "超参数",
+            "_sequence": 5,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "D",
+                "value": "D"
+              },
+              {
+                "label": "W",
+                "value": "W"
+              },
+              {
+                "label": "M",
+                "value": "M"
+              },
+              {
+                "label": "Q",
+                "value": "Q"
+              },
+              {
+                "label": "Y",
+                "value": "Y"
+              },
+              {
+                "label": "H",
+                "value": "H"
+              }
+            ]
+          }
+        },
+        "growth": {
+          "type": "string",
+          "title": "增长模式",
+          "description": "linear 线性增长；logistic 带上限的 S 型增长；flat 无长期趋势",
+          "enum": [
+            "linear",
+            "logistic",
+            "flat"
+          ],
+          "default": "linear",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "超参数",
+            "_sequence": 6,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "linear",
+                "value": "linear"
+              },
+              {
+                "label": "logistic",
+                "value": "logistic"
+              },
+              {
+                "label": "flat",
+                "value": "flat"
+              }
+            ]
+          }
+        },
+        "changepointPriorScale": {
+          "type": "number",
+          "title": "变点先验尺度",
+          "description": "趋势变点的灵活度；越大越容易捕捉突变，也越容易过拟合（建议 0.001–0.5）",
+          "minimum": 0.001,
+          "maximum": 0.5,
+          "default": 0.05,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "step": 0.01,
+            "_group": "超参数",
+            "_sequence": 7,
+            "min": 0.001,
+            "max": 0.5
+          }
+        },
+        "historyTailPoints": {
+          "type": "integer",
+          "title": "历史尾点数量",
+          "description": "推理结果图表中展示的历史数据点数，仅影响可视化",
+          "minimum": 0,
+          "maximum": 500,
+          "default": 30,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "超参数",
+            "_sequence": 8,
+            "min": 0,
+            "max": 500
+          }
+        },
+        "yearlySeasonality": {
+          "type": "boolean",
+          "title": "年季节项",
+          "description": "是否拟合以年为周期的季节性波动",
+          "default": true,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "季节项",
+            "_groupCollapsed": true,
+            "_sequence": 9
+          }
+        },
+        "weeklySeasonality": {
+          "type": "boolean",
+          "title": "周季节项",
+          "description": "是否拟合以周为周期的季节性波动",
+          "default": true,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "季节项",
+            "_sequence": 10
+          }
+        },
+        "dailySeasonality": {
+          "type": "boolean",
+          "title": "日季节项",
+          "description": "是否拟合以日为周期的季节性波动",
+          "default": false,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "季节项",
+            "_sequence": 11
+          }
+        },
+        "seasonalityMode": {
+          "type": "string",
+          "title": "季节模式",
+          "description": "additive 季节波动与趋势相加；multiplicative 按倍数叠加（适合波动随水平放大）",
+          "enum": [
+            "additive",
+            "multiplicative"
+          ],
+          "default": "additive",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "季节项",
+            "_sequence": 12,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "additive",
+                "value": "additive"
+              },
+              {
+                "label": "multiplicative",
+                "value": "multiplicative"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "trainingResult": {
+      "type": "object",
+      "properties": {
+        "mape": {
+          "type": "number",
+          "title": "MAPE",
+          "description": "平均绝对百分比误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "MAPE",
+            "description": "平均绝对百分比误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "mae": {
+          "type": "number",
+          "title": "MAE",
+          "description": "平均绝对误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "MAE",
+            "description": "平均绝对误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "rmse": {
+          "type": "number",
+          "title": "RMSE",
+          "description": "均方根误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "RMSE",
+            "description": "均方根误差，越小越好",
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeConfig": {
+      "type": "object",
+      "required": [
+        "periods"
+      ],
+      "properties": {
+        "periods": {
+          "type": "integer",
+          "title": "预测期数",
+          "description": "向未来延伸的预测步数，每步间隔由训练频率 freq 决定",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 8,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_sequence": 1,
+            "min": 1,
+            "max": 365
+          }
+        },
+        "futureHolidays": {
+          "type": "array",
+          "title": "未来节假日",
+          "description": "预测期内要套用「训练时已学到的节假日效应」的日期列表",
+          "items": {
+            "type": "object",
+            "required": [
+              "ds"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ds": {
+                "type": "string",
+                "format": "date",
+                "title": "日期",
+                "description": "YYYY-MM-DD；须落在预测频率网格上（如 freq=W 则用与训练/预测相同的周锚点）",
+                "x-ui": {
+                  "~": "ElDatePicker",
+                  "type": "date",
+                  "valueFormat": "YYYY-MM-DD",
+                  "placeholder": "选择日期",
+                  "class": "!w-full",
+                  "_sequence": 1
+                }
+              },
+              "name": {
+                "type": "string",
+                "title": "节假日名称",
+                "description": "须与训练 holidays 名称一致；列训练（如 is_holiday）时名为「节假日」；省略则用训练默认名；禁止传 holiday、勿自造未训练名称",
+                "x-ui": {
+                  "~": "ElInput",
+                  "_sequence": 2
+                }
+              },
+              "lowerWindow": {
+                "type": "integer",
+                "title": "下窗口",
+                "description": "可选；省略则用训练窗口；显式传入须与训练一致（列训练通常为 0）；禁止 lower_window",
+                "x-ui": {
+                  "~": "ElInputNumber",
+                  "class": "!w-full",
+                  "_sequence": 3
+                }
+              },
+              "upperWindow": {
+                "type": "integer",
+                "title": "上窗口",
+                "description": "可选；省略则用训练窗口；显式传入须与训练一致（列训练通常为 0）；禁止 upper_window",
+                "x-ui": {
+                  "~": "ElInputNumber",
+                  "class": "!w-full",
+                  "_sequence": 4
+                }
+              }
+            }
+          },
+          "x-ui": {
+            "~": "AlgTable",
+            "_sequence": 2
+          }
+        },
+        "features": {
+          "type": "object",
+          "title": "回归量未来值",
+          "description": "各额外回归量在预测期内的取值；未配置 regressors 时可留空",
+          "default": {},
+          "additionalProperties": {
+            "type": "number"
+          },
+          "x-ui": {
+            "~": "AlgFeatureValues",
+            "_sequence": 3,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray(props?.config?.regressors) ? props?.config?.regressors : []).map(String)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            },
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeResult": {
+      "type": "object",
+      "properties": {
+        "periods": {
+          "type": "integer",
+          "title": "预测期数",
+          "description": "本次推理输出的未来步数",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "预测期数",
+            "description": "本次推理输出的未来步数",
+            "_formItem": false
+          }
+        },
+        "freq": {
+          "type": "string",
+          "title": "频率",
+          "description": "训练时设定的时间序列采样频率",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "频率",
+            "description": "训练时设定的时间序列采样频率",
+            "_formItem": false
+          }
+        },
+        "horizonStart": {
+          "type": "string",
+          "title": "预测起点",
+          "description": "预测区间起始时间（历史序列最后一点之后）",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "预测起点",
+            "description": "预测区间起始时间（历史序列最后一点之后）",
+            "_formItem": false
+          }
+        },
+        "horizonEnd": {
+          "type": "string",
+          "title": "预测终点",
+          "description": "预测区间结束时间",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 4,
+            "title": "预测终点",
+            "description": "预测区间结束时间",
+            "_formItem": false
+          }
+        },
+        "forecast": {
+          "type": "array",
+          "title": "预测曲线",
+          "description": "历史观测与预测值及置信区间的时序图",
+          "x-ui": {
+            "~": "AlgForecastChart",
+            "xField": "ds",
+            "chartType": "line",
+            "series": [
+              {
+                "name": "历史",
+                "field": "y"
+              },
+              {
+                "name": "预测",
+                "field": "yhat"
+              },
+              {
+                "name": "下限",
+                "field": "yhat_lower"
+              },
+              {
+                "name": "上限",
+                "field": "yhat_upper"
+              }
+            ],
+            "_sequence": 5,
+            "title": "预测曲线",
+            "subtitle": "历史观测与预测值及置信区间的时序图",
+            "_formItem": false
+          }
+        }
+      }
+    }
+  }
+}

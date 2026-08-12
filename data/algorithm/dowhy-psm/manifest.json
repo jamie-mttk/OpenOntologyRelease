@@ -1,0 +1,554 @@
+{
+  "name": "因果效应估计（DoWhy）",
+  "version": "1.0.0",
+  "description": "估计某项干预对结果的因果效应（做了 vs 没做差多少），而非预测或相关拟合。\n适合已能区分是否接受干预、并观测到结果，且关心「干预是否真有作用」的评估问题。",
+  "runtime": {
+    "interpreter": "python"
+  },
+  "spec": {
+    "trainingConfig": {
+      "type": "object",
+      "required": [
+        "treatment",
+        "outcome"
+      ],
+      "properties": {
+        "treatment": {
+          "type": "string",
+          "title": "处理变量",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "_group": "数据绑定",
+            "_sequence": 1,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          },
+          "description": "因果干预或政策变量列（如是否接受处理）"
+        },
+        "outcome": {
+          "type": "string",
+          "title": "结果变量",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "_group": "数据绑定",
+            "_sequence": 2,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          },
+          "description": "关心的结果变量列"
+        },
+        "confounders": {
+          "type": "array",
+          "title": "混杂因素",
+          "items": {
+            "type": "string"
+          },
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "_group": "数据绑定",
+            "_sequence": 3,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          },
+          "description": "同时影响处理与结果的混杂变量，用于后门调整"
+        },
+        "instruments": {
+          "type": "array",
+          "title": "工具变量",
+          "items": {
+            "type": "string"
+          },
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "_group": "数据绑定",
+            "_sequence": 4,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          },
+          "description": "仅通过处理影响结果的工具变量，用于 IV 估计"
+        },
+        "effectModifiers": {
+          "type": "array",
+          "title": "效应修饰变量",
+          "items": {
+            "type": "string"
+          },
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "_group": "数据绑定",
+            "_sequence": 5,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          },
+          "description": "因果效应随其取值而变化的修饰变量"
+        },
+        "graph": {
+          "type": "string",
+          "title": "因果图 (DOT)",
+          "x-ui": {
+            "~": "ElInput",
+            "type": "textarea",
+            "autosize": {
+              "minRows": 4,
+              "maxRows": 16
+            },
+            "_group": "数据绑定",
+            "_sequence": 6,
+            "placeholder": "因果图 (DOT)"
+          },
+          "description": "Graphviz DOT 格式的有向无环因果图，描述变量间因果关系"
+        },
+        "missingNodesAsConfounders": {
+          "type": "boolean",
+          "title": "未入图列作混杂",
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "因果模型",
+            "_groupCollapsed": true,
+            "_sequence": 7
+          },
+          "description": "数据中存在但未写入因果图的列自动视为混杂因素"
+        },
+        "proceedWhenUnidentifiable": {
+          "type": "boolean",
+          "title": "不可识别时继续",
+          "default": false,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "因果模型",
+            "_sequence": 8
+          },
+          "description": "因果效应不可识别时仍继续估计（结果可能不可靠）"
+        },
+        "estimandType": {
+          "type": "string",
+          "title": "Estimand 类型",
+          "enum": [
+            "nonparametric-ate"
+          ],
+          "default": "nonparametric-ate",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "因果模型",
+            "_sequence": 9,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "ATE",
+                "value": "nonparametric-ate"
+              }
+            ]
+          },
+          "description": "要估计的因果量类型，当前为平均处理效应 ATE"
+        },
+        "identifyMethodName": {
+          "type": "string",
+          "title": "识别方法",
+          "enum": [
+            "default",
+            "id-algorithm"
+          ],
+          "default": "default",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "识别",
+            "_groupCollapsed": true,
+            "_sequence": 10,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "default",
+                "value": "default"
+              },
+              {
+                "label": "id-algorithm",
+                "value": "id-algorithm"
+              }
+            ]
+          },
+          "description": "从因果图识别 estimand 的算法；id-algorithm 为系统化搜索"
+        },
+        "optimizeBackdoor": {
+          "type": "boolean",
+          "title": "优化后门集",
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "识别",
+            "_sequence": 11
+          },
+          "description": "是否自动搜索满足后门准则的最小调整集"
+        },
+        "estimateMethodName": {
+          "type": "string",
+          "title": "估计方法",
+          "enum": [
+            "backdoor.propensity_score_matching",
+            "backdoor.propensity_score_stratification",
+            "backdoor.propensity_score_weighting",
+            "backdoor.linear_regression",
+            "backdoor.generalized_linear_model",
+            "backdoor.distance_matching",
+            "iv.instrumental_variable",
+            "frontdoor.two_stage_regression"
+          ],
+          "default": "backdoor.propensity_score_matching",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "估计",
+            "_groupCollapsed": true,
+            "_sequence": 12,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "PSM",
+                "value": "backdoor.propensity_score_matching"
+              },
+              {
+                "label": "PS 分层",
+                "value": "backdoor.propensity_score_stratification"
+              },
+              {
+                "label": "PS 加权",
+                "value": "backdoor.propensity_score_weighting"
+              },
+              {
+                "label": "线性回归",
+                "value": "backdoor.linear_regression"
+              },
+              {
+                "label": "GLM",
+                "value": "backdoor.generalized_linear_model"
+              },
+              {
+                "label": "距离匹配",
+                "value": "backdoor.distance_matching"
+              },
+              {
+                "label": "IV",
+                "value": "iv.instrumental_variable"
+              },
+              {
+                "label": "前门两阶段",
+                "value": "frontdoor.two_stage_regression"
+              }
+            ]
+          },
+          "description": "识别通过后的数值估计方法（如 PSM、线性回归）"
+        },
+        "controlValue": {
+          "type": "number",
+          "title": "对照组处理值",
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "估计",
+            "_sequence": 13
+          },
+          "description": "处理变量在对照情形下的取值（如 0）"
+        },
+        "treatmentValue": {
+          "type": "number",
+          "title": "处理组处理值",
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "估计",
+            "_sequence": 14
+          },
+          "description": "处理变量在处理情形下的取值（如 1）"
+        },
+        "targetUnits": {
+          "type": "string",
+          "title": "目标效应",
+          "enum": [
+            "ate",
+            "att",
+            "atc"
+          ],
+          "default": "ate",
+          "x-ui": {
+            "~": "ElSelect",
+            "_group": "估计",
+            "_sequence": 15,
+            "filterable": true,
+            "class": "w-full",
+            "options": [
+              {
+                "label": "ATE",
+                "value": "ate"
+              },
+              {
+                "label": "ATT",
+                "value": "att"
+              },
+              {
+                "label": "ATC",
+                "value": "atc"
+              }
+            ]
+          },
+          "description": "ATE 全体 / ATT 处理组 / ATC 对照组上的平均效应"
+        },
+        "confidenceIntervals": {
+          "type": "boolean",
+          "title": "置信区间",
+          "default": true,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "估计",
+            "_sequence": 16
+          },
+          "description": "是否为效应估计输出置信区间"
+        },
+        "testSignificance": {
+          "type": "boolean",
+          "title": "显著性检验",
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "估计",
+            "_sequence": 17
+          },
+          "description": "是否进行效应的统计显著性检验"
+        },
+        "evaluateEffectStrength": {
+          "type": "boolean",
+          "title": "效应强度",
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "估计",
+            "_sequence": 18
+          },
+          "description": "是否评估效应强度"
+        },
+        "caliper": {
+          "type": "number",
+          "title": "PSM 卡尺",
+          "minimum": 0.01,
+          "maximum": 1,
+          "default": 0.1,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "step": 0.01,
+            "_group": "PSM 参数",
+            "_groupCollapsed": true,
+            "_sequence": 19,
+            "min": 0.01,
+            "max": 1
+          },
+          "description": "PSM 匹配时倾向得分允许的最大差值，越小匹配越严格"
+        },
+        "numStrata": {
+          "type": "integer",
+          "title": "分层数",
+          "minimum": 2,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "PSM 参数",
+            "_sequence": 20,
+            "min": 2
+          },
+          "description": "倾向得分分层法的层数"
+        }
+      }
+    },
+    "trainingResult": {
+      "type": "object",
+      "properties": {
+        "ate": {
+          "type": "number",
+          "title": "ATE",
+          "description": "平均处理效应（Average Treatment Effect）",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "ATE",
+            "description": "平均处理效应（Average Treatment Effect）",
+            "_formItem": false
+          }
+        },
+        "ciLow": {
+          "type": "number",
+          "title": "置信区间下界",
+          "description": "ATE 估计置信区间的下界",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "置信区间下界",
+            "description": "ATE 估计置信区间的下界",
+            "_formItem": false
+          }
+        },
+        "ciHigh": {
+          "type": "number",
+          "title": "置信区间上界",
+          "description": "ATE 估计置信区间的上界",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 4,
+            "title": "置信区间上界",
+            "description": "ATE 估计置信区间的上界",
+            "_formItem": false
+          }
+        },
+        "sampleSize": {
+          "type": "integer",
+          "title": "样本量",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 5,
+            "title": "样本量",
+            "description": "参与估计的有效样本行数",
+            "_formItem": false
+          },
+          "description": "参与估计的有效样本行数"
+        },
+        "baselineOutcomeMean": {
+          "type": "number",
+          "title": "对照组结果均值",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 6,
+            "title": "对照组结果均值",
+            "description": "对照组（未处理）的结果变量样本均值",
+            "_formItem": false
+          },
+          "description": "对照组（未处理）的结果变量样本均值"
+        },
+        "treatedOutcomeMean": {
+          "type": "number",
+          "title": "处理组结果均值",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 7,
+            "title": "处理组结果均值",
+            "description": "处理组的结果变量样本均值",
+            "_formItem": false
+          },
+          "description": "处理组的结果变量样本均值"
+        },
+        "ateSummary": {
+          "type": "number",
+          "title": "ATE",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "ATE",
+            "description": "ATE 估计值（高亮摘要）",
+            "_formItem": false,
+            "_modelPath": "ate"
+          },
+          "description": "ATE 估计值（高亮摘要）"
+        }
+      }
+    },
+    "invokeConfig": {
+      "type": "object",
+      "required": [
+        "treatmentRate"
+      ],
+      "properties": {
+        "treatmentRate": {
+          "type": "number",
+          "title": "处理比例",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.3,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "step": 0.01,
+            "_sequence": 1,
+            "min": 0,
+            "max": 1
+          },
+          "description": "反事实情景下接受处理的人群比例（0–1）"
+        }
+      }
+    },
+    "invokeResult": {
+      "type": "object",
+      "properties": {
+        "treatmentRate": {
+          "type": "number",
+          "title": "处理比例",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "处理比例",
+            "description": "反事实情景下的处理比例",
+            "_formItem": false
+          },
+          "description": "反事实情景下的处理比例"
+        },
+        "expectedOutcomeMean": {
+          "type": "number",
+          "title": "预期结果均值",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "预期结果均值",
+            "description": "该处理比例下的预期结果均值",
+            "_formItem": false
+          },
+          "description": "该处理比例下的预期结果均值"
+        },
+        "baselineOutcomeMean": {
+          "type": "number",
+          "title": "基线结果均值",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "基线结果均值",
+            "description": "当前数据基线下的结果均值",
+            "_formItem": false
+          },
+          "description": "当前数据基线下的结果均值"
+        },
+        "ate": {
+          "type": "number",
+          "title": "ATE",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 4,
+            "title": "ATE",
+            "description": "训练得到的平均处理效应",
+            "_formItem": false
+          },
+          "description": "训练得到的平均处理效应"
+        },
+        "upliftVsBaseline": {
+          "type": "number",
+          "title": "相对基线提升",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 5,
+            "title": "相对基线提升",
+            "description": "预期均值相对基线的提升量",
+            "_formItem": false
+          },
+          "description": "预期均值相对基线的提升量"
+        }
+      }
+    }
+  }
+}

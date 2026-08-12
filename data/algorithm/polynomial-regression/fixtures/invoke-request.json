@@ -1,0 +1,31 @@
+{
+  "manifest": {
+    "code": "polynomial-regression",
+    "version": "1.0.0"
+  },
+  "algorithmConfig": {
+    "id": "cfg_test_poly",
+    "payload": {
+      "bindings": {
+        "features": [
+          "dayOfWeek",
+          "unitPrice",
+          "promoFlag"
+        ]
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_poly_001"
+  },
+  "artifact": {
+    "dir": "REPLACE_WITH_OUT_DIR"
+  },
+  "invokeInput": {
+    "features": {
+      "dayOfWeek": 3,
+      "unitPrice": 10.5,
+      "promoFlag": 0
+    }
+  }
+}

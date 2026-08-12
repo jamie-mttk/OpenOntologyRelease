@@ -126,19 +126,41 @@ bin\shutdown.bat
 2. 在 **设置 → 模型维护** 中配置可用的大模型端点（使用智能体工作台前需要）
 3. 通过 **本体管理**、**资源管理**、**智能体工作台** 开始建模与对话
 
-## 7. Skills（外部平台）
+## 7. 本系统内安装 Skills
+
+本系统的技能包从 `SERVER_HOME/data/skills/` 加载（每个子目录一份包，且须含 `SKILL.md`）。运行态依赖在 `data/skills-runtime/`，一般无需手工改。
+
+### 7.1 安装步骤
+
+1. 将技能包目录（含 `SKILL.md` 及包内文件）**拷贝**到：
+
+```text
+SERVER_HOME/data/skills/<技能目录名>/
+```
+
+例如：`SERVER_HOME/data/skills/my-skill/SKILL.md`。
+
+2. 任选其一使系统生效：  
+   - **重启**服务；或  
+   - 在界面 **设置 → 技能管理** 中点击 **刷新目录**（重新扫描 `data/skills`）
+
+3. 在技能管理中确认已出现该技能，并可在智能体侧按域选用。
+
+> `docs/skills/` 下的 OpenOntology 技能包是给 **Claude Code / Cursor 等外部平台** 用的，见下一节；与本系统 `data/skills` 不是同一安装路径。
+
+## 8. Skills（外部平台）
 
 本发行包将部分能力以 **Skill** 形式提供，可安装到 Claude Code、Cursor 等支持 Agent Skills 的外部平台，通过 HTTP 调用本系统已启动的服务（如查数、剧本、逻辑组件等；**不含** `alg_invoke` 算法推理）。
 
 技能包位置：`docs/skills/`（例如 `docs/skills/openOntology/`，入口文件为 `SKILL.md`）。
 
-### 7.1 前提
+### 8.1 前提
 
 1. 已按上文启动 OpenOntology，并完成系统初始化（至少一个域与可用大模型，视任务而定）  
 2. 确认管理端可访问（缺省 `http://localhost:8825/`）  
 3. 外部平台所在机器能访问该服务地址（本机或内网）
 
-### 7.2 安装到外部平台
+### 8.2 安装到外部平台
 
 将整个技能目录（含 `SKILL.md`）复制到目标平台的 skills 加载路径。常见做法：
 
@@ -150,7 +172,7 @@ bin\shutdown.bat
 
 目录名建议保持 `openOntology`，与 `SKILL.md` 中的技能名一致，避免平台无法识别。
 
-### 7.3 配置服务地址
+### 8.3 配置服务地址
 
 `SKILL.md` 中的 **Base URL** 须指向本系统实际地址。缺省示例可能为 `http://localhost:8384`；若你的 `conf/ontology.json` 中 `http.port` 为 **8825**，请改为：
 
@@ -160,7 +182,7 @@ http://localhost:8825
 
 唯一工具入口：`POST {Base URL}/api/ext/tool`（详见该 `SKILL.md` 的请求契约与执行顺序）。
 
-### 7.4 验证
+### 8.4 验证
 
 1. 确认 OpenOntology 已启动  
 2. 在外部平台启用/选中该 Skill 后发起一次简单任务（如列出可用域）  
@@ -168,7 +190,7 @@ http://localhost:8825
 
 更细的工具列表、调用顺序与硬性规则以技能包内 [`SKILL.md`](skills/openOntology/SKILL.md) 为准。
 
-## 8. 常见问题
+## 9. 常见问题
 
 **提示 `JAVA_HOME` 未正确设置**  
 设置系统/用户环境变量 `JAVA_HOME` 为 JDK 25+ 安装路径后，重新打开终端再启动。
@@ -185,9 +207,12 @@ http://localhost:8825
 **外部 Skill 调用失败**  
 确认服务已启动、Base URL 与端口一致，且 `POST /api/ext/tool` 可从外部平台所在环境访问。
 
-## 9. 相关文档
+**本系统技能列表没有新包**  
+确认已拷贝到 `data/skills/<目录>/SKILL.md`，并已重启或在「设置 → 技能管理」中点击 **刷新目录**。
+
+## 10. 相关文档
 
 - 产品说明：[README](../README.md)
 - 快速开始：[快速开始](quickstart.md)
 - 许可协议：[LICENSE](../LICENSE)
-- OpenOntology Skill：[skills/openOntology/SKILL.md](skills/openOntology/SKILL.md)
+- OpenOntology Skill（外部平台）：[skills/openOntology/SKILL.md](skills/openOntology/SKILL.md)

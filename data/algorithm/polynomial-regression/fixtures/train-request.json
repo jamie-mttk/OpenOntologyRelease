@@ -1,0 +1,36 @@
+{
+  "manifest": {
+    "code": "polynomial-regression",
+    "version": "1.0.0"
+  },
+  "algorithmConfig": {
+    "id": "cfg_test_poly",
+    "name": "poly test",
+    "domainId": "demo",
+    "payload": {
+      "data": {
+        "entity": "SalesOrderLine",
+        "query": {}
+      },
+      "bindings": {
+        "target": "quantity",
+        "features": [
+          "dayOfWeek",
+          "unitPrice",
+          "promoFlag"
+        ]
+      },
+      "hyperparams": {
+        "degree": 2,
+        "includeBias": true
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_poly_001"
+  },
+  "dataMeta": {
+    "rowCount": 10,
+    "columns": []
+  }
+}

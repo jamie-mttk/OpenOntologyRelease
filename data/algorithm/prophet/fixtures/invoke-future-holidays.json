@@ -1,0 +1,16 @@
+{
+  "artifact": {
+    "dir": "d:/biz/sales/2026/黄总/code/backend/model/prophet/out-e2e"
+  },
+  "invokeInput": {
+    "periods": 4,
+    "futureHolidays": [
+      {
+        "ds": "2024-02-11",
+        "name": "节假日",
+        "lowerWindow": 0,
+        "upperWindow": 0
+      }
+    ]
+  }
+}

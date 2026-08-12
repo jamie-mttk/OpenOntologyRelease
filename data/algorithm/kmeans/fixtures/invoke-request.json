@@ -1,0 +1,12 @@
+{
+  "artifact": {
+    "dir": "REPLACE_WITH_OUT_DIR"
+  },
+  "invokeInput": {
+    "features": {
+      "recency": 12,
+      "frequency": 7,
+      "monetary": 550
+    }
+  }
+}

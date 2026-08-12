@@ -1,0 +1,204 @@
+{
+  "name": "XGBoost 回归",
+  "version": "1.0.0",
+  "description": "用多个特征预测一个数值目标，可处理非线性与特征交互。\n适合在已有样本与多维特征上估计金额、数量、评分等连续结果。",
+  "runtime": {
+    "interpreter": "python"
+  },
+  "spec": {
+    "trainingConfig": {
+      "type": "object",
+      "required": [
+        "target",
+        "features",
+        "nEstimators",
+        "maxDepth",
+        "learningRate"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "title": "因变量",
+          "description": "预测目标列",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 1,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "features": {
+          "type": "array",
+          "title": "自变量",
+          "description": "用于拟合的特征列",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 2,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "nEstimators": {
+          "type": "integer",
+          "title": "树数量",
+          "description": "梯度提升树的棵数；越多通常越准，但训练更慢",
+          "minimum": 50,
+          "maximum": 1000,
+          "default": 200,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "超参数",
+            "_sequence": 3,
+            "min": 50,
+            "max": 1000
+          }
+        },
+        "maxDepth": {
+          "type": "integer",
+          "title": "最大深度",
+          "description": "单棵树的最大深度；越大模型越复杂，易过拟合",
+          "minimum": 2,
+          "maximum": 16,
+          "default": 6,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "超参数",
+            "_sequence": 4,
+            "min": 2,
+            "max": 16
+          }
+        },
+        "learningRate": {
+          "type": "number",
+          "title": "学习率",
+          "description": "每棵树的贡献收缩系数；越小需更多树，但泛化往往更稳",
+          "minimum": 0.001,
+          "maximum": 1,
+          "default": 0.1,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "step": 0.01,
+            "_group": "超参数",
+            "_sequence": 5,
+            "min": 0.001,
+            "max": 1
+          }
+        }
+      }
+    },
+    "trainingResult": {
+      "type": "object",
+      "properties": {
+        "rmse": {
+          "type": "number",
+          "title": "RMSE",
+          "description": "均方根误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "RMSE",
+            "description": "均方根误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "mae": {
+          "type": "number",
+          "title": "MAE",
+          "description": "平均绝对误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "MAE",
+            "description": "平均绝对误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "r2": {
+          "type": "number",
+          "title": "R²",
+          "description": "决定系数，越接近 1 越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "R²",
+            "description": "决定系数，越接近 1 越好",
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeConfig": {
+      "type": "object",
+      "required": [
+        "features"
+      ],
+      "properties": {
+        "features": {
+          "type": "object",
+          "title": "特征值",
+          "description": "训练配置中自变量在当前样本的取值",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "x-ui": {
+            "~": "AlgFeatureValues",
+            "_featurePresets": true,
+            "_sequence": 1,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray(props?.config?.features) ? props?.config?.features : []).map(String)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            },
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeResult": {
+      "type": "object",
+      "properties": {
+        "prediction": {
+          "type": "number",
+          "title": "预测值",
+          "description": "模型对当前特征组合的回归预测",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": {
+              "$bind": "expr",
+              "expr": "(() => { const code = String($modelValue?.target ?? ''); if (!code) return '预测值'; const cols = Array.isArray(props.columns) ? props.columns : []; const col = cols.find(c => c.property === code); const name = String(col?.displayName ?? col?.name ?? ''); if (name && name !== code) return '预测值 · ' + name + '(' + code + ')'; return name ? ('预测值 · ' + name) : ('预测值 · ' + code); })()"
+            },
+            "description": "模型对当前特征组合的回归预测",
+            "_formItem": false
+          }
+        }
+      }
+    }
+  }
+}

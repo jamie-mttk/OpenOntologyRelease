@@ -1,0 +1,8 @@
+{
+  "artifact": {
+    "dir": "d:/biz/sales/2026/黄总/code/backend/model/prophet/out-e2e"
+  },
+  "invokeInput": {
+    "periods": 8
+  }
+}

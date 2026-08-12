@@ -1,0 +1,8 @@
+{
+  "artifact": {
+    "dir": "REPLACE_WITH_OUT_DIR"
+  },
+  "invokeInput": {
+    "treatmentRate": 0.5
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "name": "多项式回归",
+  "version": "1.0.0",
+  "description": "用多项式拟合「若干数值特征 → 一个数值目标」，做简单非线性回归预测。\n适合样本量不大、关系大致光滑的趋势或曲线拟合，以及需要可解释回归关系的场景。",
+  "runtime": {
+    "interpreter": "python"
+  },
+  "spec": {
+    "trainingConfig": {
+      "type": "object",
+      "required": [
+        "target",
+        "features",
+        "degree"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "title": "因变量",
+          "description": "预测目标列",
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "single",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 1,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "features": {
+          "type": "array",
+          "title": "自变量",
+          "description": "用于拟合的特征列",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "x-ui": {
+            "~": "AlgColumnBinding",
+            "mode": "multi",
+            "dataTypes": [
+              "INTEGER",
+              "DECIMAL"
+            ],
+            "_group": "数据绑定",
+            "_sequence": 2,
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            }
+          }
+        },
+        "degree": {
+          "type": "integer",
+          "title": "多项式阶数",
+          "description": "最高阶数（1–6）；阶数越高拟合越灵活，过高易过拟合",
+          "minimum": 1,
+          "maximum": 6,
+          "default": 3,
+          "x-ui": {
+            "~": "ElInputNumber",
+            "class": "!w-full",
+            "_group": "超参数",
+            "_sequence": 3,
+            "min": 1,
+            "max": 6
+          }
+        },
+        "includeBias": {
+          "type": "boolean",
+          "title": "含截距项",
+          "description": "是否在多项式特征中保留常数项（截距）",
+          "default": true,
+          "x-ui": {
+            "~": "ElSwitch",
+            "_group": "超参数",
+            "_sequence": 4
+          }
+        }
+      }
+    },
+    "trainingResult": {
+      "type": "object",
+      "properties": {
+        "rmse": {
+          "type": "number",
+          "title": "RMSE",
+          "description": "均方根误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": "RMSE",
+            "description": "均方根误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "mae": {
+          "type": "number",
+          "title": "MAE",
+          "description": "平均绝对误差，越小越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 2,
+            "title": "MAE",
+            "description": "平均绝对误差，越小越好",
+            "_formItem": false
+          }
+        },
+        "r2": {
+          "type": "number",
+          "title": "R²",
+          "description": "决定系数，越接近 1 越好",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 3,
+            "title": "R²",
+            "description": "决定系数，越接近 1 越好",
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeConfig": {
+      "type": "object",
+      "required": [
+        "features"
+      ],
+      "properties": {
+        "features": {
+          "type": "object",
+          "title": "特征值",
+          "description": "训练配置中自变量的取值",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "x-ui": {
+            "~": "AlgFeatureValues",
+            "_featurePresets": true,
+            "_sequence": 1,
+            "featureKeys": {
+              "$bind": "expr",
+              "expr": "(Array.isArray(props?.config?.features) ? props?.config?.features : []).map(String)"
+            },
+            "columns": {
+              "$bind": "expr",
+              "expr": "Array.isArray(props.columns) ? props.columns : []"
+            },
+            "_formItem": false
+          }
+        }
+      }
+    },
+    "invokeResult": {
+      "type": "object",
+      "properties": {
+        "prediction": {
+          "type": "number",
+          "title": "预测值",
+          "description": "模型对当前特征组合的预测结果",
+          "x-ui": {
+            "~": "AlgMetric",
+            "_sequence": 1,
+            "title": {
+              "$bind": "expr",
+              "expr": "(() => { const code = String($modelValue?.target ?? ''); if (!code) return '预测值'; const cols = Array.isArray(props.columns) ? props.columns : []; const col = cols.find(c => c.property === code); const name = String(col?.displayName ?? col?.name ?? ''); if (name && name !== code) return '预测值 · ' + name + '(' + code + ')'; return name ? ('预测值 · ' + name) : ('预测值 · ' + code); })()"
+            },
+            "description": "模型对当前特征组合的预测结果",
+            "_formItem": false
+          }
+        }
+      }
+    }
+  }
+}

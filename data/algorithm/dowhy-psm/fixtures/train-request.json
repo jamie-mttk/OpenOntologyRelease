@@ -1,0 +1,22 @@
+{
+  "algorithmConfig": {
+    "payload": {
+      "bindings": {
+        "treatment": "promoApplied",
+        "outcome": "salesAmount",
+        "confounders": [
+          "region",
+          "channel",
+          "season"
+        ]
+      },
+      "hyperparams": {
+        "caliper": 0.1,
+        "matchingRatio": 1
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_dowhy_001"
+  }
+}

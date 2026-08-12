@@ -1,0 +1,5 @@
+{
+  "reportFile": "causal_report.json",
+  "algorithmCode": "dowhy-psm",
+  "scenario": "ate_policy_cf"
+}

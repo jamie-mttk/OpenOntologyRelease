@@ -1,0 +1,20 @@
+{
+  "algorithmConfig": {
+    "payload": {
+      "bindings": {
+        "features": [
+          "recency",
+          "frequency",
+          "monetary"
+        ]
+      },
+      "hyperparams": {
+        "nClusters": 3,
+        "standardize": true
+      }
+    }
+  },
+  "trainingRun": {
+    "id": "run_test_kmeans_001"
+  }
+}
