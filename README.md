@@ -1,63 +1,79 @@
-# OpenOntology
+# OpenOntology 决策大脑
 
-面向业务决策的本体与 AI 工作台：把领域知识、数据资源与大模型能力连在一起，让查询、编排与执行可治理、可落地。
+企业里真正难的往往不是「有没有数据」，而是如何快速问清问题、看清结果、再往前走一步分析。  
+和常规 BI、固定报表不同，OpenOntology 决策大脑更偏向**交互式数据探索**：不需要写代码，用业务语言直接追问数据、发现规律与价值；在图形化界面中完成操作，用图表把结论讲清楚；需要更深入时，再把算法接进来做统计、预测等进阶分析。
+
+## 你可以做什么
+
+- 用业务语言提问，例如：「哪些客户卖的比较好，为什么？」——无需编程或数据开发背景  
+- 在对话里用表单补条件、用图表看结果，把「问清楚」和「看明白」连在一起  
+- 需要时直接在探索过程中调用算法做训练或推理，验证想法而不另开一套分析工具  
+- 在常规管理界面维护本体、资源、剧本与技能，改完即可被智能体使用  
+- 用剧本固化常用分析路径或域内规则，减少每次从零开始聊  
 
 ## 产品亮点
 
-- **本体驱动**：以域（Domain）组织实体、属性与关系，支撑可复用的业务语义模型
-- **AI 工作台**：内嵌对话与工具调用，结合技能（Skills）完成查询、编排与辅助决策
-- **资源一体管理**：Playbook、工具、算法、界面组件等统一在资源浏览器中维护
-- **开箱即用**：发行包内置 H2，配置 `JAVA_HOME` 后即可启动；亦可切换 MySQL
-- **可扩展运行时**：Addon / 本地库 / 可移植依赖分层放置，便于按环境裁剪
+- **本体查询语言**  
+  你用业务语言提问，平台把意图落成可执行的结构化查询（Ontology Query Language / JSON），按已知业务模型解释执行。不依赖你具备技术背景，也降低自由生成查询时的幻觉与不可控，结果更可审计。
+
+- **界面和智能体融合**  
+  解决的是**对话过程里的输入与展现**：表单、面板、图表进到智能体流程中，条件不必全靠打字，结果不必挤在 Markdown 里。该点选的点选，该看图的看图。
+
+- **算法训练和推理融合**  
+  查数、看图之后还能接着算。算法库嵌在智能体链路里，训练与推理可走同一条探索路径，把「发现问题」推进到「验证假设、给出量化结论」。
+
+- **常规软件界面探索**  
+  解决的是**管理台与智能体怎么分工**：结构、权限与资产仍在熟悉的管理界面里治理；探索与编排交给智能体按需调用。不是旁边挂个聊天窗，而是「可控软件 + 智能体」走同一条链路。
+
+- **剧本**  
+  把常用分析方法、处置步骤，甚至域内规则（如域常驻剧本）写成可编排的剧本。有章法、可复用，也保留组合与演进的可玩空间。
+
+- **扩展性**  
+  用技能与工具按业务接外部系统或专用能力，扩展智能体边界，无需改平台内核。
 
 ## 截图
 
+| 界面 | 对应能力 |
+|---|---|
+| AI 工作台 / 对话 | 交互式探索；界面和智能体融合 |
+| 本体管理 | 业务模型治理；支撑本体查询语言 |
+| 资源管理 | 常规软件界面中的资产维护 |
+| 剧本 | 路径与规则沉淀 |
+| 技能 / 算法库 / 界面组件 | 扩展性；算法训练和推理融合 |
+
 <table>
   <tr>
-    <td align="center"><img src="docs/images/ai_chat.png" alt="AI 工作台" width="100%"/><br/><sub>AI 工作台</sub></td>
-    <td align="center"><img src="docs/images/ai_chat2.png" alt="AI 对话" width="100%"/><br/><sub>AI 对话</sub></td>
+    <td align="center"><img src="docs/images/ai_chat.png" alt="AI 工作台" width="100%"/><br/><sub>AI 工作台 · 交互式探索</sub></td>
+    <td align="center"><img src="docs/images/ai_chat2.png" alt="AI 对话" width="100%"/><br/><sub>AI 对话 · 表单与图表融合</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/images/ontology.png" alt="本体管理" width="100%"/><br/><sub>本体管理</sub></td>
-    <td align="center"><img src="docs/images/resource.png" alt="资源管理" width="100%"/><br/><sub>资源管理</sub></td>
+    <td align="center"><img src="docs/images/ontology.png" alt="本体管理" width="100%"/><br/><sub>本体管理 · 业务模型</sub></td>
+    <td align="center"><img src="docs/images/resource.png" alt="资源管理" width="100%"/><br/><sub>资源管理 · 资产治理</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/images/playbook.png" alt="Playbook" width="100%"/><br/><sub>Playbook</sub></td>
-    <td align="center"><img src="docs/images/skills.png" alt="技能管理" width="100%"/><br/><sub>技能管理</sub></td>
+    <td align="center"><img src="docs/images/playbook.png" alt="剧本" width="100%"/><br/><sub>剧本 · 路径与规则</sub></td>
+    <td align="center"><img src="docs/images/skills.png" alt="技能管理" width="100%"/><br/><sub>技能管理 · 扩展能力</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/images/alg.png" alt="算法库" width="100%"/><br/><sub>算法库</sub></td>
-    <td align="center"><img src="docs/images/ui.png" alt="界面组件" width="100%"/><br/><sub>界面组件</sub></td>
+    <td align="center"><img src="docs/images/alg.png" alt="算法库" width="100%"/><br/><sub>算法库 · 训练与推理</sub></td>
+    <td align="center"><img src="docs/images/ui.png" alt="界面组件" width="100%"/><br/><sub>界面组件 · 图形化呈现</sub></td>
   </tr>
 </table>
 
-## 产品介绍
+## 快速试用
 
-OpenOntology（界面品牌名：**决策大脑**）帮助团队用统一的本体描述业务世界，并在同一平台上：
+1. 安装 **JDK 25+**，并设置 `JAVA_HOME`  
+2. 启动（Windows：`bin\startup.bat`；Linux/macOS：`bin/startup.sh`）  
+3. 浏览器打开 `http://localhost:8825/`  
+4. 顶栏选择业务**域**（可使用或安装演示域，详见安装手册）  
+5. 在 **设置 → 模型维护** 配置可用大模型（使用 AI 工作台前需要）  
+6. 打开 **AI 工作台**，用业务语言提问，例如：「哪些客户卖的比较好，为什么？」
 
-- 维护多域本体与绑定数据
-- 通过 Agent 对话调用工具与技能，完成查询与任务编排
-- 管理 Playbook、算法与 UI 组件，把能力沉淀为可复用资产
-
-适合需要「业务语义 + AI 执行」一体化的内部平台或产品原型场景。
+完整步骤、目录说明、停机与 MySQL 切换见 [安装手册](docs/install.md)。
 
 ## 安装
 
-**环境要求**：JDK **25+**，并设置 `JAVA_HOME`。
-
-**快速启动（Windows）**：
-
-```bat
-bin\startup.bat
-```
-
-浏览器访问：`http://localhost:8825/`
-
-完整步骤（目录说明、停机、MySQL 切换、常见问题）见：
-
-- [安装手册](docs/install.md)
-
-Linux / macOS 可使用 `bin/startup.sh`（同样需 JDK 25+）。
+发行包解压后即可按上文「快速试用」启动。更多内容（目录说明、停机、H2 / MySQL、常见问题）见 [安装手册](docs/install.md)。
 
 ## License
 
