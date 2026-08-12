@@ -12,15 +12,24 @@
 
 ## 截图
 
-![AI 工作台](docs/images/ai_chat.png)
-
-![本体管理](docs/images/ontology.png)
-
-![资源管理](docs/images/resource.png)
-
-![Playbook](docs/images/playbook.png)
-
-更多界面见 `docs/images/`（技能、算法、UI 组件等）。
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/ai_chat.png" alt="AI 工作台" width="100%"/><br/><sub>AI 工作台</sub></td>
+    <td align="center"><img src="docs/images/ai_chat2.png" alt="AI 对话" width="100%"/><br/><sub>AI 对话</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/ontology.png" alt="本体管理" width="100%"/><br/><sub>本体管理</sub></td>
+    <td align="center"><img src="docs/images/resource.png" alt="资源管理" width="100%"/><br/><sub>资源管理</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/playbook.png" alt="Playbook" width="100%"/><br/><sub>Playbook</sub></td>
+    <td align="center"><img src="docs/images/skills.png" alt="技能管理" width="100%"/><br/><sub>技能管理</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/alg.png" alt="算法库" width="100%"/><br/><sub>算法库</sub></td>
+    <td align="center"><img src="docs/images/ui.png" alt="界面组件" width="100%"/><br/><sub>界面组件</sub></td>
+  </tr>
+</table>
 
 ## 产品介绍
 
