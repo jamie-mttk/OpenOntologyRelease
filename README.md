@@ -65,17 +65,7 @@
 
 ## 快速开始
 
-想尽快跑起来（含 JDK 安装、`JAVA_HOME`、初始化页与 DeepSeek API Key）见 **[快速开始](docs/quickstart.md)**。
-
-摘要：
-
-1. 安装 **JDK 25+**，并设置 `JAVA_HOME`（或在 `bin/server.bat` 中指定）  
-2. 启动（Windows：`bin\startup.bat`；Linux/macOS：`bin/startup.sh`）  
-3. 浏览器打开 `http://localhost:8825/`  
-4. 首次进入 **系统初始化**：配置大模型，并导入演示域或新建域  
-5. 打开 **智能体工作台**，用业务语言提问，例如：「哪些客户卖的比较好，为什么？」
-
-完整手册见 [安装手册](docs/install.md)。
+想尽快跑起来见 **[快速开始](docs/quickstart.md)**。完整手册见 [安装手册](docs/install.md)。
 
 ## Skills
 
