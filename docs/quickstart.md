@@ -8,7 +8,7 @@
 
 ## 1. 安装 JDK 25（Windows）
 
-本系统需要 **JDK 25 或更高**（不是仅含运行环境的旧版 JRE）。
+本系统需要 **JDK 25 或更高**。
 
 下文以 **Oracle JDK 25** 为安装示例；**OpenJDK 发行版**（如 Eclipse Temurin、Microsoft Build of OpenJDK 等）同样可用，只要 `java -version` 主版本 ≥ 25。
 
@@ -57,7 +57,7 @@ rem set JAVA_HOME=D:\java\jdk-25
 set JAVA_HOME=C:\Program Files\Java\jdk-25
 ```
 
-## 3. 启动服务（Windows）
+## 3. 启动本系统（Windows）
 
 在 `SERVER_HOME` 下执行：
 
