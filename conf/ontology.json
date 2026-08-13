@@ -113,7 +113,7 @@
           "label": "查询最大行数",
           "description": "回执可含 data 的最大行数（含）；超过则落盘。",
           "type": "int",
-          "value": 200
+          "value": 400
         },
         {
           "key": "openont.ontologyQuery.rejectMaxRows",

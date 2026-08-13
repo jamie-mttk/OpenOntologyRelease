@@ -79,25 +79,22 @@ http://localhost:8825/
 
 ![系统初始化](images/init.png)
 
-### 4.1 左侧：配置大语言模型（以 DeepSeek 为例）
+### 4.1 左侧：配置大语言模型（推荐 DeepSeek）
 
-1. **名称**：随意，例如 `deepseek`  
-2. **URL**：须为 OpenAI 兼容的 **完整** chat 接口地址，且路径含 `/v1/chat/completions`  
-   - DeepSeek 示例：`https://api.deepseek.com/v1/chat/completions`  
-3. **API Key**：在 DeepSeek 开放平台申请（见下节）  
-4. **模型名**：例如 `deepseek-v4-flash`（以平台当前可用模型名为准）  
-5. 先点 **测试连接**，成功后再点 **保存模型**  
+1. 点 **使用 DeepSeek**  
+2. 按弹窗说明申请 API Key（见下节），粘贴后可先 **测试连接**，再 **保存**（取消或关闭弹窗不会保存）  
+3. 其它供应商：在「或自定义模型」中填写完整 URL、API Key、模型名后保存  
 
 保存后也可在「设置 → 模型维护」中继续管理。
 
 ### 4.2 如何申请 DeepSeek API Key
 
-这里申请的是 **调用大模型的 API 密钥**（不是软件 License）。
+弹窗内也有同样说明。这里申请的是 **调用大模型的 API 密钥**（不是软件 License）。
 
 1. 打开 DeepSeek 开放平台：[https://platform.deepseek.com](https://platform.deepseek.com)（以官网实际入口为准）  
 2. 注册 / 登录账号  
 3. 进入 API Key（密钥）管理页，**创建新密钥**  
-4. 复制密钥（通常只显示一次），粘贴到初始化页的 **API Key**  
+4. 复制密钥（通常只显示一次），粘贴到弹窗的 **API Key**  
 5. 按平台说明完成充值或免费额度配置（若需要）  
 
 官方说明还可参考：[DeepSeek API 文档](https://api-docs.deepseek.com/)。
