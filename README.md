@@ -67,7 +67,7 @@
 
 想尽快跑起来见 **[快速开始](docs/quickstart.md)**。完整手册见 [安装手册](docs/install.md)。
 
-[更多信息，访问今日头条](docs/images/toutiao.png)
+<img src="docs/images/toutiao.png" alt="更多信息，访问今日头条"/><br/><sub>更多信息，访问今日头条</sub>
 
 ## Skills
 
