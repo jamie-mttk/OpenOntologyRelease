@@ -67,6 +67,8 @@
 
 想尽快跑起来见 **[快速开始](docs/quickstart.md)**。完整手册见 [安装手册](docs/install.md)。
 
+[更多信息，访问今日头条](docs/images/toutiao.png)
+
 ## Skills
 
 本项目的能力也可打包成 **Skill**，供 Claude Code、Cursor 等外部智能体平台调用：在外部对话里查本体数据、推进剧本、调用逻辑组件等，而不必进入本系统的图形界面。
