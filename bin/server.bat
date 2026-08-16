@@ -3,13 +3,12 @@ if "%OS%" == "Windows_NT" setlocal
 
 cd /d "%~dp0"
 set SERVER_HOME=..
-rem set JAVA_HOME=..\runtime\jre
-rem set JAVA_HOME=D:\java\jdk-25
+rem Windows 发行包自带 jdk（jlink 裁剪）时优先使用，不必设 JAVA_HOME
+if exist "%SERVER_HOME%\jdk\bin\java.exe" set "JAVA_HOME=%SERVER_HOME%\jdk"
 if defined JAVA_HOME set "JAVA_HOME=%JAVA_HOME:"=%"
 rem Check Java Home
 if exist "%JAVA_HOME%\bin\java.exe" goto okJavaHome
-echo The JAVA_HOME environment variable is not defined correctly
-echo This environment variable is needed to run this program
+echo Java runtime not found. Use the bundled jdk folder, or set JAVA_HOME to a JDK 25 install.
 goto fail
 :okJavaHome
 
