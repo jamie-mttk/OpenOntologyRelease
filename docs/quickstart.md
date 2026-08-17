@@ -22,6 +22,15 @@
 http://localhost:8825/
 ```
 
+### 安装 / 卸载 Windows 服务（可选）
+
+若希望开机自动运行、不长期开着黑色窗口，可把本系统装成 Windows 服务。在 `bin` 目录中**右键脚本 → 使用 PowerShell 运行**（会弹出 UAC）：
+
+- `installService.ps1`：安装服务（服务名 `OpenOntology`，默认自动启动）
+- `uninstallService.ps1`：卸载服务
+
+装好后可在 Windows「服务」里启动、停止。卸载前请先停止该服务。不要同时用 `startup.bat` 和 Windows 服务跑两份实例。
+
 ## 3. 系统初始化（首次必做）
 
 首次进入会跳到初始化页。先自动做基础初始化，再按向导配置大模型与业务域；两项都完成后进入系统，之后不会再进入本页。
