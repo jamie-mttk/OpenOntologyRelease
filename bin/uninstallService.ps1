@@ -4,8 +4,8 @@ param()
 $ServiceName = 'OpenOntology'
 $Root = $PSScriptRoot
 if (-not $Root) { $Root = Split-Path -Parent $MyInvocation.MyCommand.Path }
-$Jsl = Join-Path $Root 'jsl\jsl64.exe'
-$JslDir = Split-Path -Parent $Jsl
+$Jsl = Join-Path $Root 'jsl64.exe'
+$JslDir = $Root
 
 function Test-IsAdmin {
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()

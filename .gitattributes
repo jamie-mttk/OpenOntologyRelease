@@ -3,5 +3,5 @@
 # 因此 .bat 必须在仓库中保存为 CRLF（不要规范化成 LF）。
 *.bat -text
 *.ps1 -text
-bin/jsl/*.ini -text
+bin/jsl64.ini -text
 *.exe binary
