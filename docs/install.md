@@ -80,14 +80,12 @@ cd /d SERVER_HOME
 bin\startup.bat
 ```
 
-也可注册为 Windows 服务（开机自动启动）。在 `bin` 中**右键 → 使用 PowerShell 运行**（会弹出 UAC）：
+也可注册为 Windows 服务（开机自动启动）。**以管理员身份**运行：
 
-```powershell
-cd SERVER_HOME\bin
-.\installService.ps1
+```bat
+cd /d SERVER_HOME
+bin\installService.bat
 ```
-
-或直接右键 `bin\installService.ps1` → 使用 PowerShell 运行。
 
 服务名与显示名均为 `OpenOntology`。JVM 使用发行包内 `jdk` 目录（与 `server.bat` 相同）；启动参数见 `bin\jsl\jsl64.ini`。
 
@@ -115,10 +113,10 @@ http://localhost:8825/
 bin\shutdown.bat
 ```
 
-若已安装为 Windows 服务，可在「服务」中停止，或**右键 → 使用 PowerShell 运行**卸载：
+若已安装为 Windows 服务，可在「服务」中停止，或**以管理员身份**卸载：
 
-```powershell
-.\uninstallService.ps1
+```bat
+bin\uninstallService.bat
 ```
 
 ### Linux / macOS
@@ -225,7 +223,7 @@ http://localhost:8825
 确认进程已启动、防火墙未拦截，并使用 `http://localhost:<端口>/`（端口与配置一致）；浏览器需支持 HTML5。
 
 **安装 Windows 服务失败**  
-`installService.ps1` 须用 PowerShell 运行（右键 → 使用 PowerShell 运行，会弹出 UAC）。不要双击用记事本打开。确认 `bin\jsl\jsl64.exe` 与 `jsl64.ini` 存在，且 `jdk\bin\java.exe` 或本机 JDK 25 可用。
+`installService.bat` 须**以管理员身份**运行。确认 `bin\jsl\jsl64.exe` 与 `jsl64.ini` 存在，且 `jdk\bin\java.exe` 或本机 JDK 25 可用。
 
 **外部 Skill 调用失败**  
 确认服务已启动、Base URL 与端口一致，且 `POST /api/ext/tool` 可从外部平台所在环境访问。

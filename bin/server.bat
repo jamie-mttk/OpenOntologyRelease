@@ -1,7 +1,7 @@
 @echo off
 if "%OS%" == "Windows_NT" setlocal
 
-cd /d "%~dp0"
+cd /d "%~dp0."
 set SERVER_HOME=..
 rem Windows 发行包自带 jdk（jlink 裁剪）时优先使用，不必设 JAVA_HOME
 if exist "%SERVER_HOME%\jdk\bin\java.exe" set "JAVA_HOME=%SERVER_HOME%\jdk"

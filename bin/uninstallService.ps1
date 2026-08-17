@@ -1,9 +1,9 @@
-﻿# 右键此文件 → 使用 PowerShell 运行（会弹出 UAC）。不要用记事本打开。
-# Requires Windows PowerShell 5.1+.
+﻿# Requires Windows PowerShell 5.1+
 param()
 
 $ServiceName = 'OpenOntology'
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Root = $PSScriptRoot
+if (-not $Root) { $Root = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $Jsl = Join-Path $Root 'jsl\jsl64.exe'
 $JslDir = Split-Path -Parent $Jsl
 
@@ -16,11 +16,7 @@ function Test-IsAdmin {
 function Wait-Key {
     Write-Host ''
     Write-Host 'Press Enter to close this window. / 按 Enter 关闭此窗口...'
-    try {
-        [void](Read-Host)
-    } catch {
-        Start-Sleep -Seconds 8
-    }
+    try { [void](Read-Host) } catch { Start-Sleep -Seconds 8 }
 }
 
 if (-not (Test-IsAdmin)) {
@@ -53,22 +49,39 @@ Write-Host "Uninstalling Windows service: $ServiceName"
 Write-Host "正在卸载 Windows 服务: $ServiceName"
 Write-Host ''
 
-$proc = Start-Process -FilePath $Jsl -ArgumentList '-remove' -WorkingDirectory $JslDir -Wait -PassThru
-$code = $proc.ExitCode
-Write-Host ''
+$svc = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+if ($svc -and $svc.Status -ne 'Stopped') {
+    Write-Host "Stopping service $ServiceName ..."
+    Write-Host "正在停止服务 $ServiceName ..."
+    try {
+        Stop-Service -Name $ServiceName -Force -ErrorAction Stop
+        Start-Sleep -Seconds 2
+    } catch {
+        Write-Host "[WARN] Stop service: $($_.Exception.Message)"
+    }
+    Write-Host ''
+}
 
-if ($code -ne 0) {
-    Write-Host "[FAILED] Service uninstall failed. exitcode=$code"
-    Write-Host '服务卸载失败。'
+$proc = Start-Process -FilePath $Jsl -ArgumentList '-remove' -WorkingDirectory $JslDir -Wait -PassThru
+$code = 0
+if ($null -ne $proc -and $null -ne $proc.ExitCode) { $code = [int]$proc.ExitCode }
+
+Start-Sleep -Seconds 1
+$left = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+
+Write-Host ''
+if ($null -eq $left) {
+    Write-Host '[OK] Service uninstalled successfully.'
+    Write-Host '服务卸载成功。'
     Write-Host "Service name: $ServiceName"
     Write-Host "服务名: $ServiceName"
     Wait-Key
-    exit $code
+    exit 0
 }
 
-Write-Host '[OK] Service uninstalled successfully.'
-Write-Host '服务卸载成功。'
+Write-Host "[FAILED] Service uninstall failed. exitcode=$code"
+Write-Host '服务卸载失败（服务仍存在）。'
 Write-Host "Service name: $ServiceName"
 Write-Host "服务名: $ServiceName"
 Wait-Key
-exit 0
+exit 1

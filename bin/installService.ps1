@@ -1,9 +1,9 @@
-﻿# 右键此文件 → 使用 PowerShell 运行（会弹出 UAC）。不要用记事本打开。
-# Requires Windows PowerShell 5.1+.
+﻿# Requires Windows PowerShell 5.1+
 param()
 
 $ServiceName = 'OpenOntology'
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Root = $PSScriptRoot
+if (-not $Root) { $Root = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $Jsl = Join-Path $Root 'jsl\jsl64.exe'
 $JslDir = Split-Path -Parent $Jsl
 
@@ -16,11 +16,7 @@ function Test-IsAdmin {
 function Wait-Key {
     Write-Host ''
     Write-Host 'Press Enter to close this window. / 按 Enter 关闭此窗口...'
-    try {
-        [void](Read-Host)
-    } catch {
-        Start-Sleep -Seconds 8
-    }
+    try { [void](Read-Host) } catch { Start-Sleep -Seconds 8 }
 }
 
 if (-not (Test-IsAdmin)) {
@@ -54,9 +50,10 @@ Write-Host "正在安装 Windows 服务: $ServiceName"
 Write-Host ''
 
 $proc = Start-Process -FilePath $Jsl -ArgumentList '-install' -WorkingDirectory $JslDir -Wait -PassThru
-$code = $proc.ExitCode
-Write-Host ''
+$code = 0
+if ($null -ne $proc -and $null -ne $proc.ExitCode) { $code = [int]$proc.ExitCode }
 
+Write-Host ''
 if ($code -ne 0) {
     Write-Host "[FAILED] Service install failed. exitcode=$code"
     Write-Host '服务安装失败。'
