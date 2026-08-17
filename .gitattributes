@@ -1,0 +1,4 @@
+# Windows cmd.exe 无法正确解析仅 LF 换行的 .bat。
+# GitHub「Download ZIP」按仓库内原始字节打包，不会做 autocrlf 转换，
+# 因此 .bat 必须在仓库中保存为 CRLF（不要规范化成 LF）。
+*.bat -text
