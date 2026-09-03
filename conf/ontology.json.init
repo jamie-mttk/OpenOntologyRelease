@@ -66,13 +66,6 @@
           "type": "int",
           "value": 200000
         },
-		{
-          "key": "ai.conversationTitleAiEnabled",
-          "label": "自动AI生成会话标题",
-          "description": "是否用大模型异步生成会话标题。",
-          "type": "boolean",
-          "value": true
-        },
         {
           "key": "ai.compactEnabled",
           "label": "启用上下文压缩",
