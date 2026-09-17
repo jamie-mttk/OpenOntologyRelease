@@ -22,7 +22,7 @@
           "label": "最大轮次",
           "description": "单轮对话最大 tool/assistant 轮次。",
           "type": "int",
-          "value": 200
+          "value": 1000
         },
         {
           "key": "ai.llmConnectTimeoutSeconds",
@@ -67,21 +67,6 @@
           "value": 200000
         },
         {
-          "key": "ai.compactEnabled",
-          "label": "启用上下文压缩",
-          "description": "是否启用上下文压缩。",
-          "type": "boolean",
-          "value": true
-        },
-        {
-          "key": "ai.compactThresholdRatio",
-          "label": "压缩触发阈值(0~1)",
-          "description": "上下文压缩触发阈值（占 context window 比例，0~1）。",
-          "type": "double",
-          "value": 0.85
-        },
-
-        {
           "key": "ai.chatLogEnabled",
           "label": "落盘 LLM 调用日志",
           "description": "是否落盘每次 LLM call 的请求与响应。",
@@ -118,28 +103,50 @@
       ]
     },
     {
-      "id": "skills",
-      "title": "技能",
+      "id": "file",
+      "title": "文件与 Shell",
       "items": [
         {
-          "key": "skills.execTimeoutSeconds",
-          "label": "skill_exec 超时(秒)",
-          "description": "skill_exec 单次命令超时（秒）。",
+          "key": "file.readSizeLimit",
+          "label": "read 默认字数上限",
+          "description": "basic read 工具默认读取的 Unicode 码点上限。",
           "type": "int",
-          "value": 600
-        }
-      ]
-    },
-    {
-      "id": "bash",
-      "title": "Bash",
-      "items": [
+          "value": 16000
+        },
         {
-          "key": "bash.path",
-          "label": "Bash 可执行路径",
-          "description": "skill_exec / CLI 等共用的 bash 路径（建议正向斜杠）。",
-          "type": "string",
-          "value": ""
+          "key": "file.globMaxResults",
+          "label": "glob 结果上限",
+          "description": "basic glob 返回的最大条数；超限截断。",
+          "type": "int",
+          "value": 100
+        },
+        {
+          "key": "file.grepMaxResults",
+          "label": "grep 结果上限",
+          "description": "basic grep 返回的最大条数；超限截断。",
+          "type": "int",
+          "value": 100
+        },
+        {
+          "key": "file.shellTimeout",
+          "label": "shell 默认超时(毫秒)",
+          "description": "basic shell 工具默认超时（毫秒）。",
+          "type": "int",
+          "value": 120000
+        },
+        {
+          "key": "file.shellOutLimit",
+          "label": "shell stdout 截断字数",
+          "description": "shell 标准输出保留的最大码点数；超限留尾并落盘全文。",
+          "type": "int",
+          "value": 8000
+        },
+        {
+          "key": "file.shellErrLimit",
+          "label": "shell stderr 截断字数",
+          "description": "shell 标准错误保留的最大码点数；超限留尾并落盘全文。",
+          "type": "int",
+          "value": 8000
         }
       ]
     },
