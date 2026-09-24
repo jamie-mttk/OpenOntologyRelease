@@ -147,6 +147,13 @@
           "description": "shell 标准错误保留的最大码点数；超限留尾并落盘全文。",
           "type": "int",
           "value": 8000
+        },
+        {
+          "key": "file.writeRedactionLimit",
+          "label": "write 历史正文裁剪阈值",
+          "description": "write 成功后, assistant 里 content 超过此长度(字符)则收成 tip; 0 或负数表示不裁剪。",
+          "type": "int",
+          "value": 10000
         }
       ]
     },
