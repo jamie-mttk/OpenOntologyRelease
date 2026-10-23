@@ -76,6 +76,19 @@
       ]
     },
     {
+      "id": "mcp",
+      "title": "MCP",
+      "items": [
+        {
+          "key": "mcp.stdioSessionIdleSeconds",
+          "label": "stdio 进程空闲保留(秒)",
+          "description": "stdio 传输首次 mcp_call 启动子进程; 距上次 call 空闲超过该秒数后关闭。0 表示每 call 结束立即关闭。",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
       "id": "ontologyQuery",
       "title": "本体查询",
       "items": [
