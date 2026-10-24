@@ -65,8 +65,6 @@
 
 ## 快速开始
 
-基本上可以看作是一个通用智能体平台!实现上做了大量层级拆解!
-
 想尽快跑起来见 **[快速开始](docs/quickstart.md)**。完整手册见 [安装手册](docs/install.md)。
 
 <img src="docs/images/toutiao.png" alt="更多信息，访问今日头条"/><br/><sub>更多信息，访问今日头条</sub>
