@@ -1,0 +1,19 @@
+# WebView2 浏览器用户数据（缓存/Cookie/localStorage），运行时自动重建
+webview-data/
+data/webview-data/
+
+# 运行时产物
+log/
+temp/
+data/STOPME
+bin/file.lock
+*.lock.db
+
+# 本地配置（由 *.init 模板生成）
+conf/ontology.json
+conf/version.conf
+
+# 编译中间产物
+bin/Release/
+bin/Debug/
+obj/
