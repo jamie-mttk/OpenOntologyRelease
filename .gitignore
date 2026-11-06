@@ -17,3 +17,6 @@ conf/version.conf
 bin/Release/
 bin/Debug/
 obj/
+
+#数据库，防止错误上传
+db/ontology.mv.db

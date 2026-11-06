@@ -53,7 +53,7 @@ Base URL：`http://localhost:8825`。
 ```
 1. bootstrap，arguments="{}"
    （第一步；拿到结果前不得调用其它工具）
-2. 向用户展示 domains，等待用户明确选定 domain id
+2. 向用户展示 domains，等待用户明确选定 domain id；如果只有一个domain直接提醒用户，不需要选择
    （选定前不得 domain_detail / resource_* / 其它工具）
 3. domain_detail，arguments="{\"domain\":\"<用户选定的域 id>\"}"
    （选定后立刻调用；记下当前域 id，后续 resource_search 一律带同一 domain）

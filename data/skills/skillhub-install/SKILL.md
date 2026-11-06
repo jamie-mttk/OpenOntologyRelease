@@ -1,6 +1,6 @@
 ---
 name: skillhub-install
-description: 理解用户意图, 在 SkillHub 上搜索并安装合适的技能到本平台 skills 目录.
+description: 理解用户意图, 在 SkillHub 上搜索并安装合适的技能到本平台 skills 目录.当用户需要执行的任务无合适工具时和已经安装技能时，提醒用户可以使用此技能查找并在确认后执行此技能。
 context: inline
 version: "1.0.0"
 ---
@@ -48,12 +48,12 @@ GET https://api.skillhub.cn/api/skills?page=1&pageSize=24&sortBy=score&order=des
 
 ### Step 3 · 用户择一(必须)
 
-在 Step 2 得到的全部结果中, 按与用户 **意图** 的贴合度筛选, **最多 5 个** 候选, 用 **@uc/choose_one[多项择一]** 请用户选定一项.
+在 Step 2 得到的全部结果中, 按与用户 **意图** 的贴合度筛选, **选择 3 到 10个** 候选, 用 **@uc/choose_one[多项择一]** 请用户选定一项.
 
 1. `resource_get(kind=uc, id=choose_one)` 读取组件 schema.
 2. `ui_show_component` 渲染 choose_one:
    - **description**(Markdown): 写清用户的 **意图**、本流程用过的 **关键词**. 若有候选已在本地安装, 另起一段用 **加粗** 与红色强调, 例如: **<span style="color:#F56C6C">下列标「本平台已安装」的项无需重复安装; 若仍要选择, 下一步将确认是否覆盖.</span>**
-   - **options**(最多 5 项):
+   - **options*:
      - **label**: 取 Step 2 条目 JSON **`name`**; 已安装时可加 ` · 已安装` 后缀.
      - **description**: 结合搜索结果中的 **description** 说明用途与匹配理由. 若 `resource_search(kind=skill)` 已有相同 **code**, **description 必须以固定前缀开头** `【本平台已安装】`(界面红色加粗), 前缀后换行再写解读; 不得仅放在末尾或弱提示.
      - **value**: 填该技能的 **code**(小写). 未填时组件会回传 label, 因此 **务必填写 code**.
