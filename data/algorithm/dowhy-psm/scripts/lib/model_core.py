@@ -19,7 +19,7 @@ def train_from_csv(
     hp = parse_hyperparams(config)
     precheck_bindings(bindings, hp)
 
-    work, effective_bindings = load_workframe(csv_path, bindings)
+    work, effective_bindings = load_workframe(csv_path, bindings, data_meta)
     treatment_col = effective_bindings["treatment"]
     outcome_col = effective_bindings["outcome"]
 

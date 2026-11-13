@@ -65,19 +65,10 @@ def _prepare_treatment(series: pd.Series) -> pd.Series:
     raise ValueError("treatment must be binary (two distinct values or 0/1)")
 
 
-def _coerce_bool_like_to_numeric(series: pd.Series) -> pd.Series:
-    """bool / 二值 TrueFalse → int, 避免 DoWhy/numpy 对 bool 做减法报错."""
+def _bool_to_int(series: pd.Series) -> pd.Series:
+    """BOOLEAN 列转数值，避免 DoWhy/numpy 对 bool 做减法报错；非 bool 原样返回。"""
     if pd.api.types.is_bool_dtype(series):
-        return series.astype(int)
-    #
-    sample = series.dropna()
-    if sample.empty:
-        return series
-    unique = set(sample.unique().tolist())
-    if unique.issubset({True, False}):
-        return series.map({True: 1, False: 0}).astype(int)
-    if unique.issubset({0, 1, 0.0, 1.0, True, False}):
-        return series.astype(int)
+        return series.astype(float)
     return series
 
 
@@ -97,8 +88,12 @@ def _build_mediation_graph(bindings: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def load_workframe(csv_path, bindings: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
-    df = pd.read_csv(csv_path)
+def load_workframe(
+    csv_path, bindings: dict[str, Any], data_meta: dict[str, Any]
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    from lib.cli import load_csv_typed
+
+    df = load_csv_typed(csv_path, data_meta)
     cols = {bindings["treatment"], bindings["outcome"]}
     for key in ("confounders", "instruments", "effectModifiers", "mediators"):
         cols.update(bindings.get(key) or [])
@@ -114,11 +109,11 @@ def load_workframe(csv_path, bindings: dict[str, Any]) -> tuple[pd.DataFrame, di
     if work[treatment_col].nunique() < 2:
         raise ValueError("treatment column must have both 0 and 1 after encoding")
     #
-    # outcome / 协变量若为 bool, DoWhy 内部减法会触发 numpy boolean subtract
-    work[outcome_col] = _coerce_bool_like_to_numeric(work[outcome_col])
+    # outcome / 协变量若为 BOOLEAN（dataMeta 已转换）, 转 int 供 DoWhy 使用
+    work[outcome_col] = _bool_to_int(work[outcome_col])
     for key in ("confounders", "instruments", "effectModifiers", "mediators"):
         for col in bindings.get(key) or []:
-            work[col] = _coerce_bool_like_to_numeric(work[col])
+            work[col] = _bool_to_int(work[col])
 
     effective_bindings = dict(bindings)
     if bindings.get("mediators") and not bindings.get("graph"):

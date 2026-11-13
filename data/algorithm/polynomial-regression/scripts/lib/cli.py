@@ -8,11 +8,18 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 REQUEST_JSON = "request.json"
 DATA_CSV = "data.csv"
 ARTIFACTS_DIR = "artifacts"
 INVOKE_INPUT_JSON = "invokeInput.json"
 RESULT_JSON = "result.json"
+
+# 与平台 DataType 枚举对齐；训练 CSV 禁止 OBJECT
+_SUPPORTED_DATA_TYPES = frozenset(
+    {"STRING", "INTEGER", "DECIMAL", "BOOLEAN", "DATE", "TIMESTAMP"}
+)
 
 
 def _configure_stdio_encoding() -> None:
@@ -133,6 +140,82 @@ def column_codes(data_meta: dict[str, Any]) -> list[str]:
             raise ValueError("dataMeta.columns[].code is required")
         codes.append(str(code))
     return codes
+
+
+def column_data_types(data_meta: dict[str, Any]) -> dict[str, str]:
+    """code → 大写 dataType；缺项或非法类型 fail-fast。"""
+    columns = data_meta.get("columns")
+    if not isinstance(columns, list):
+        raise ValueError("dataMeta.columns must be an array")
+    out: dict[str, str] = {}
+    for item in columns:
+        if not isinstance(item, dict):
+            raise ValueError("dataMeta.columns item must be an object")
+        code = item.get("code")
+        data_type = item.get("dataType")
+        if not code:
+            raise ValueError("dataMeta.columns[].code is required")
+        if not data_type:
+            raise ValueError(f"dataMeta.columns[].dataType is required for {code}")
+        normalized = str(data_type).upper()
+        if normalized not in _SUPPORTED_DATA_TYPES:
+            raise ValueError(f"unsupported dataType {data_type} for column {code}")
+        out[str(code)] = normalized
+    return out
+
+
+def cast_series_by_data_type(series: pd.Series, data_type: str) -> pd.Series:
+    """按 dataMeta.dataType 强制转换；禁止样本推断，非法值直接抛错。"""
+    dt = data_type.upper()
+    if dt == "STRING":
+        return series.astype(str)
+    # CSV 空串表示 null
+    cleaned = series.mask(series.astype(str) == "", pd.NA)
+    if dt == "INTEGER":
+        return pd.to_numeric(cleaned, errors="raise").astype("Int64")
+    if dt == "DECIMAL":
+        return pd.to_numeric(cleaned, errors="raise").astype(float)
+    if dt == "BOOLEAN":
+        return _cast_boolean_series(cleaned)
+    if dt == "DATE" or dt == "TIMESTAMP":
+        return pd.to_datetime(cleaned, errors="raise")
+    raise ValueError(f"unsupported dataType: {data_type}")
+
+
+def _cast_boolean_series(series: pd.Series) -> pd.Series:
+    """平台 CSV 布尔为 true/false；亦接受 0/1。"""
+
+    def _one(value: Any) -> Any:
+        if value is pd.NA or value is None:
+            return pd.NA
+        text = str(value)
+        lowered = text.lower()
+        if lowered in ("true", "1"):
+            return True
+        if lowered in ("false", "0"):
+            return False
+        raise ValueError(f"invalid boolean value: {value!r}")
+
+    return series.map(_one).astype("boolean")
+
+
+def load_csv_typed(csv_path: str | Path, data_meta: dict[str, Any]) -> pd.DataFrame:
+    """按 dataMeta.columns[].dataType 加载 CSV；禁止 pandas 自行推断类型。"""
+    type_map = column_data_types(data_meta)
+    # keep_default_na=False：空串由类型转换自行处理，避免误伤字符串列
+    df = pd.read_csv(csv_path, dtype=str, keep_default_na=False)
+    missing_in_meta = [c for c in df.columns if c not in type_map]
+    if missing_in_meta:
+        raise ValueError(f"dataMeta.columns missing types for CSV columns: {missing_in_meta}")
+    missing_in_csv = [c for c in type_map if c not in df.columns]
+    if missing_in_csv:
+        raise ValueError(f"CSV missing columns declared in dataMeta: {missing_in_csv}")
+    for col, data_type in type_map.items():
+        try:
+            df[col] = cast_series_by_data_type(df[col], data_type)
+        except Exception as exc:  # noqa: BLE001
+            raise ValueError(f"failed to cast column {col} as {data_type}: {exc}") from exc
+    return df
 
 
 def emit_ok(data: dict[str, Any]) -> None:

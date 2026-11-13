@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from prophet import Prophet
 
-from lib.cli import log_info
+from lib.cli import load_csv_typed, log_info
 
 SUPPORTED_FREQ = {"D", "W", "MS", "ME", "QS", "YS", "Y"}
 
@@ -122,19 +122,24 @@ def _build_holidays_df(df: pd.DataFrame, ds_col: str, holiday_defs: list[dict[st
         col = item["column"]
         if col not in df.columns:
             raise ValueError(f"CSV missing holiday column: {col}")
+        # 节假日列须为 BOOLEAN 或 INTEGER(0/1)，类型由 dataMeta 强制转换
         raw = df[col]
-        if raw.dtype == bool:
+        if pd.api.types.is_bool_dtype(raw):
             mask = raw.fillna(False)
+        elif pd.api.types.is_numeric_dtype(raw):
+            vals = raw.dropna()
+            if not vals.empty and not vals.isin([0, 1]).all():
+                raise ValueError(f"holiday column {col} INTEGER values must be 0 or 1")
+            mask = raw.fillna(0).astype(int).eq(1)
         else:
-            lowered = raw.astype(str).str.strip().str.lower()
-            mask = lowered.isin(("1", "true", "yes", "y"))
-            if not mask.any():
-                mask = pd.to_numeric(raw, errors="coerce").fillna(0) > 0
+            raise ValueError(
+                f"holiday column {col} must be BOOLEAN or INTEGER after dataMeta cast"
+            )
         for ds in df.loc[mask, ds_col]:
             rows.append(
                 {
                     "holiday": item["name"],
-                    "ds": pd.to_datetime(ds),
+                    "ds": ds,
                     "lower_window": int(item["lowerWindow"]),
                     "upper_window": int(item["upperWindow"]),
                 }
@@ -151,13 +156,16 @@ def _prepare_fit_frame(
     if missing:
         raise ValueError(f"CSV missing columns: {missing}")
 
+    # 类型已由 load_csv_typed 按 dataMeta 强制转换，此处只校验与整理
     work = df[[ds_col, y_col] + regressors + _holiday_columns(holiday_defs)].copy()
-    work[ds_col] = pd.to_datetime(work[ds_col], errors="coerce")
+    if not pd.api.types.is_datetime64_any_dtype(work[ds_col]):
+        raise ValueError(f"column {ds_col} must be DATE/TIMESTAMP after dataMeta cast")
     if work[ds_col].isna().any():
-        raise ValueError(f"column {ds_col} contains unparseable dates")
-    work[y_col] = pd.to_numeric(work[y_col], errors="coerce")
+        raise ValueError(f"column {ds_col} contains null dates")
+    if not pd.api.types.is_numeric_dtype(work[y_col]):
+        raise ValueError(f"column {y_col} must be INTEGER/DECIMAL after dataMeta cast")
     if work[y_col].isna().any():
-        raise ValueError(f"column {y_col} contains non-numeric values")
+        raise ValueError(f"column {y_col} contains null values")
 
     work = work.sort_values(ds_col).reset_index(drop=True)
     if work[ds_col].duplicated().any():
@@ -261,7 +269,7 @@ def train_from_csv(
     _validate_overlap(regressors, holiday_defs)
     log_info(f">>> Prophet train: freq={hp['freq']}, regressors={len(regressors)}, holidays={len(holiday_defs)}")
 
-    raw = pd.read_csv(csv_path)
+    raw = load_csv_typed(csv_path, data_meta)
     fit_df = _prepare_fit_frame(raw, ds_col, y_col, regressors, holiday_defs)
 
     min_need = _min_required_points(hp)

@@ -12,7 +12,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 
-from lib.cli import log_info
+from lib.cli import load_csv_typed, log_info
 from lib.feature_defaults import compute_feature_defaults
 
 
@@ -39,7 +39,7 @@ def train_from_csv(
     degree, include_bias = _hyperparams(config)
     log_info(f">>> 多项式回归: degree={degree}, features={len(features)}, target={target}")
 
-    df = pd.read_csv(csv_path)
+    df = load_csv_typed(csv_path, data_meta)
     missing = [c for c in features + [target] if c not in df.columns]
     if missing:
         raise ValueError(f"CSV missing columns: {missing}")

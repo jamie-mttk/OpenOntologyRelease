@@ -10,7 +10,7 @@ import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from lib.cli import log_info
+from lib.cli import load_csv_typed, log_info
 from lib.feature_defaults import compute_feature_defaults
 
 
@@ -40,7 +40,7 @@ def train_from_csv(
         f"max_depth={params['max_depth']}, features={len(features)}"
     )
 
-    df = pd.read_csv(csv_path)
+    df = load_csv_typed(csv_path, data_meta)
     missing = [c for c in features + [target] if c not in df.columns]
     if missing:
         raise ValueError(f"CSV missing columns: {missing}")

@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-from lib.cli import log_info
+from lib.cli import load_csv_typed, log_info
 from lib.feature_defaults import compute_feature_defaults
 
 _SCATTER_SAMPLE_SIZES = frozenset({0, 500, 1000, 2000})
@@ -248,7 +248,7 @@ def train_from_csv(
         f"scatterSampleSize={scatter_n}, features={len(features)}"
     )
 
-    df = pd.read_csv(csv_path)
+    df = load_csv_typed(csv_path, data_meta)
     missing = [c for c in features if c not in df.columns]
     if missing:
         raise ValueError(f"CSV missing columns: {missing}")
